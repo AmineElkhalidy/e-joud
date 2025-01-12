@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart, Layout, List, UserPen, Users } from "lucide-react";
+import { BarChart, Compass, Layout, List, UserPen, Users } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
 const routes = [
@@ -9,11 +9,11 @@ const routes = [
     label: "Dashboard",
     href: "/",
   },
-  // {
-  //   icon: Compass,
-  //   label: "Browse",
-  //   href: "/search",
-  // },
+  {
+    icon: Compass,
+    label: "Browse",
+    href: "/search",
+  },
   {
     icon: List,
     label: "Products",

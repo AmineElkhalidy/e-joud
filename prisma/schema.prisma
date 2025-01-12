@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  price       Float?
+  quantity    Int?
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  OrderItem OrderItem[]
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String
+  products  Product[]
+
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  name          String
+
+  // Relation to orders
+  orders        Order[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  userId      String
+  clientId   String
+  client     Client      @relation(fields: [clientId], references: [id])
+  totalPrice Float
+  // For professionals, they may pay later or partial
+  // so you could add an enum for PaymentStatus or separate columns for tracking
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Relation to order items
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  // store snapshot of product price at the time of order
+  price     Float   
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+enum PaymentStatus {
+  PAID
+  PENDING
+}
