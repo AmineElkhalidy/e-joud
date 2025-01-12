@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart, Compass, Layout, List, UserPen, Users } from "lucide-react";
+import { BarChart, Layout, List, UserPen, Users } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
 const routes = [
