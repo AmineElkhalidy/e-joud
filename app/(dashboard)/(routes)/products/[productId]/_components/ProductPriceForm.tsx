@@ -12,25 +12,25 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Product } from "@prisma/client";
-import { Combobox } from "@/components/ui/combobox";
+import { formatPrice } from "@/lib/format";
 
 interface Props {
   initialData: Product;
   productId: string;
-  options: { label: string; value: string }[];
 }
 
 const formSchema = z.object({
-  categoryId: z.string().min(1),
+  price: z.coerce.number().min(0, { message: "Price must be 1 or higher" }),
 });
 
-const CategoryForm = ({ initialData, productId, options }: Props) => {
+const ProductPriceForm = ({ initialData, productId }: Props) => {
   const [isEditting, setIsEditting] = useState(false);
   const router = useRouter();
   const toggleEdit = () => setIsEditting((current) => !current);
@@ -38,7 +38,7 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      categoryId: initialData?.categoryId || "",
+      price: initialData?.price || undefined,
     },
   });
 
@@ -54,14 +54,10 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
     }
   };
 
-  const selectedOption = options.find(
-    (option) => option?.value === initialData?.categoryId
-  );
-
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        <span>Product category</span>
+        <span>Product Price</span>
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditting ? (
             <>
@@ -70,7 +66,7 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit category
+              Edit price
             </>
           )}
         </Button>
@@ -80,10 +76,10 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData?.categoryId && "text-slate-500 italic"
+            !initialData?.price && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No category"}
+          {initialData?.price ? formatPrice(initialData?.price) : "No price"}
         </p>
       )}
       {isEditting && (
@@ -94,11 +90,19 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
           >
             <FormField
               control={form.control}
-              name="categoryId"
+              name="price"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Combobox options={options} {...field} />
+                    <Input
+                      disabled={isSubmitting}
+                      type="number"
+                      step={0.01}
+                      min={0}
+                      placeholder="Set a price for your product"
+                      className="bg-white"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -117,4 +121,4 @@ const CategoryForm = ({ initialData, productId, options }: Props) => {
   );
 };
 
-export default CategoryForm;
+export default ProductPriceForm;

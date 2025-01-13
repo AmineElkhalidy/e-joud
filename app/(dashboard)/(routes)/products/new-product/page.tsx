@@ -50,7 +50,7 @@ const CreateProductPage = () => {
   return (
     <div className="max-w-5xl mx-auto h-full p-6 flex md:items-center md:justify-center">
       <div className="w-full h-full">
-        <h1 className="text-2xl font-medium">Name your product</h1>
+        <h1 className="text-2xl font-semibold">Name your product</h1>
         <p className="text-sm text-muted-foreground">
           What would you like to name your product?
           <br /> Don&apos;t worry, you can change it later.

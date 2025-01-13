@@ -12,7 +12,10 @@ const SidebarItem = ({ icon: Icon, label, href }: RouteProps) => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isActive = (pathname === "/" && href === "/") || pathname === href;
+  const isActive =
+    (pathname === "/" && href === "/") ||
+    pathname === href ||
+    pathname.startsWith(`${href}/`);
 
   const onClickHandler = () => {
     router.push(href);
@@ -32,13 +35,13 @@ const SidebarItem = ({ icon: Icon, label, href }: RouteProps) => {
         <Icon
           size={22}
           className={cn("text-slate-500", isActive && "text-sky-700")}
-        />{" "}
-        <span>{label}</span>
+        />
+        <span className="font-semibold">{label}</span>
       </div>
 
       <div
         className={cn(
-          "ml-auto opacity-0 border-2 border-sky-700 h-full transition-all",
+          "ml-auto opacity-0 border-2 border-sky-700 h-14 transition-all",
           isActive && "opacity-100"
         )}
       />

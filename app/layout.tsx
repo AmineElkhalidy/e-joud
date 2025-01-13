@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConfettiProvider } from "@/components/providers/ConfettiProvider";
 import ToastProvider from "@/components/providers/ToastProvider";
 
-const rubik = Rubik({
+const manrope = Manrope({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
   title: "E-JOUD | Electronics Store",
-  description: "Welcome to E-JOUD",
+  description:
+    "Welcome to E-JOUD, Your best destination to choose the right electronic device",
 };
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={rubik.className}>
+        <body className={manrope.className}>
           <ConfettiProvider />
           <ToastProvider />
           {children}

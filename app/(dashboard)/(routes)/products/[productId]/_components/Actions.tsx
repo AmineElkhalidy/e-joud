@@ -7,32 +7,18 @@ import { TrashIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useConfettiStore } from "@/hooks/useConfettiStore";
 
 interface Props {
-  disabled: boolean;
   productId: string;
 }
 
-const ProductActions = ({ disabled, productId }: Props) => {
+const ProductActions = ({ productId }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const confetti = useConfettiStore();
-
-  const clicked = async () => {
-    try {
-      setIsLoading(true);
-    } catch (error) {
-      toast.error("Something went wrong!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const onDelete = async () => {
     try {
       setIsLoading(true);
-
       await axios.delete(`/api/products/${productId}`);
       toast.success("Product deleted!");
       router.refresh();

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require("@prisma/client");
 
 const database = new PrismaClient();
 
@@ -15,6 +15,8 @@ async function main() {
         { name: "Pcs" },
         { name: "PC Accessories" },
         { name: "Batteries" },
+        { name: "Gaming" },
+        { name: "Watches" },
       ],
     });
   } catch (error) {
