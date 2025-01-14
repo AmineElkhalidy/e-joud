@@ -37,7 +37,8 @@ model Category {
 
 model Client {
   id            String   @id @default(uuid())
-  name          String
+  userId      String
+  fullName          String
 
   // Relation to orders
   orders        Order[]

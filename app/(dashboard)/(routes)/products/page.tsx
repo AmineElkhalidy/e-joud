@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "Products | E-JOUD",
+  title: "Products List | E-JOUD",
   description: "Our Products",
 };
 
@@ -15,7 +15,7 @@ const ProductsPage = async () => {
   const { userId } = await auth();
 
   if (!userId) {
-    redirect("/");
+    return redirect("/");
   }
 
   const products = await db.product.findMany({

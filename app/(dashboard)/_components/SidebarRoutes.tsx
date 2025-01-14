@@ -29,11 +29,6 @@ const routes = [
     label: "Analytics",
     href: "/analytics",
   },
-  {
-    icon: UserPen,
-    label: "Profile",
-    href: "/user-profile",
-  },
 ];
 
 const SidebarRoutes = () => {

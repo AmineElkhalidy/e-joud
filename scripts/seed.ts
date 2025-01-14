@@ -7,13 +7,10 @@ async function main() {
     await database.category.createMany({
       data: [
         { name: "Phones" },
-        { name: "Airpods" },
-        { name: "Cables" },
-        { name: "Afficheurs" },
-        { name: "Phone Accessories" },
-        { name: "Mouses" },
         { name: "Pcs" },
-        { name: "PC Accessories" },
+        { name: "Tablets" },
+        { name: "Afficheurs (LCD, etc...)" },
+        { name: "Accessories" },
         { name: "Batteries" },
         { name: "Gaming" },
         { name: "Watches" },
