@@ -69,11 +69,10 @@ model PurchasedItem {
   purchaseId   String
   productId String
   quantity  Int
-  // store snapshot of product price at the time of order
   price     Float   
 
   purchase     Purchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

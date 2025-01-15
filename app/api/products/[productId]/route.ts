@@ -34,7 +34,7 @@ export async function DELETE(
 ) {
   try {
     const { userId } = await auth();
-    const { productId } = params;
+    const { productId } = await params;
     if (!userId) return new NextResponse("Unauthorized!", { status: 401 });
 
     const product = await db.product.findUnique({
@@ -55,7 +55,6 @@ export async function DELETE(
 
     return NextResponse.json(deletedProduct);
   } catch (error) {
-    console.error("[DELETING PRODUCT]", error);
     return NextResponse.json(error);
   }
 }

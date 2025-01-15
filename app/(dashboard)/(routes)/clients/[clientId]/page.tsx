@@ -4,6 +4,9 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import ClientNameForm from "./_components/ClientNameForm";
 import ClientActions from "./_components/ClientActions";
+import { DataTable } from "./_components/DataTable";
+import { columns } from "./_components/Columns";
+import ClientSelectedProduct from "./_components/ClientSelectedProducts";
 
 const ClientDetailsPage = async ({
   params,
@@ -34,8 +37,19 @@ const ClientDetailsPage = async ({
       <div className="flex justify-end mt-4">
         <ClientActions clientId={clientId} />
       </div>
-      <div className="md:w-1/2">
+      <div>
         <ClientNameForm initialData={client} clientId={clientId} />
+      </div>
+
+      <div>
+        <ClientSelectedProduct />
+      </div>
+
+      <div className="mt-10">
+        <h4 className="mb-2 font-medium">
+          Purchased items by {client?.fullName}:
+        </h4>
+        <DataTable columns={columns} data={[]} />
       </div>
     </div>
   );
