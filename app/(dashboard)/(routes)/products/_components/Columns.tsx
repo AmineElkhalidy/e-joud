@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import ProductQuantityControl from "./ProductQuantityControl";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -71,6 +72,22 @@ export const columns: ColumnDef<Product>[] = [
           initialQuantity={quantity}
           productId={productId}
         />
+      );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return <Button variant="ghost">Status</Button>;
+    },
+    cell: ({ row }) => {
+      const quantity = parseInt(row.getValue("quantity") || "0");
+      return (
+        <>
+          {quantity === 0 && (
+            <Badge className="bg-red-600 hover:bg-red-600">Out of Stock</Badge>
+          )}
+        </>
       );
     },
   },

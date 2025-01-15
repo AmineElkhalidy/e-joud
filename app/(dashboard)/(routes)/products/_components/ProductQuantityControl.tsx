@@ -6,6 +6,10 @@ import { Minus, Plus } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import TooltipComponent from "@/components/providers/Tooltip";
+import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useAuth } from "@clerk/nextjs";
 
 interface Props {
   initialQuantity: number;
@@ -15,44 +19,98 @@ interface Props {
 const ProductQuantityControl = ({ initialQuantity, productId }: Props) => {
   const [quantity, setQuantity] = useState(initialQuantity);
   const [isLoading, setIsLoading] = useState(false);
+  const debouncedQuantity = useDebounce(quantity, 1000);
   const router = useRouter();
+  const { userId } = useAuth();
 
-  const increaseQuantityHandler = async () => {
+  React.useEffect(() => {
+    if (debouncedQuantity !== initialQuantity) {
+      updateQuantity(debouncedQuantity);
+    }
+  }, [debouncedQuantity]);
+
+  const updateQuantity = async (newQuantity: number) => {
     try {
       setIsLoading(true);
-      const increasedQuantity = quantity + 1;
-      const response = await axios.patch(
-        `/api/products/${productId}/increase`,
-        {
-          quantity: increasedQuantity,
-        }
-      );
+      const response = await axios.patch(`/api/products/${productId}`, {
+        quantity: newQuantity,
+      });
       setQuantity(response?.data?.quantity);
-      toast.success("Quantity increased!");
       router.refresh();
     } catch (error) {
-      toast.error("Failed to increase quantity!");
+      toast.error("Failed to update quantity!");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const increaseQuantityHandler = () => {
+    setQuantity((prev) => prev + 1);
+    toast.success("Quantity updated!");
+  };
+
+  const decreaseQuantityHandler = async () => {
+    if (quantity <= 0) return;
+
+    try {
+      setIsLoading(true);
+
+      // 2. Trigger backend to record purchase
+      const response = await axios.post(`/api/purchases`, {
+        productId,
+        userId,
+        clientType: "REGULAR",
+        clientId: "",
+      });
+
+      if (response.status === 200) {
+        toast.success("Purchase recorded and stock updated!");
+        // 1. Decrease quantity locally for UI feedback
+        setQuantity((prev) => prev - 1);
+        router.refresh();
+      }
+    } catch (error) {
+      toast.error("Failed to register purchase.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBulkUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (!isNaN(newQuantity) && newQuantity >= 0) {
+      setQuantity(newQuantity);
+    }
+  };
+
   return (
-    <div className="flex items-center gap-x-4">
+    <div className="ml-2 flex items-center justify-between w-[40%] md:w-[35%] ">
       <Button
         variant="secondary"
         onClick={increaseQuantityHandler}
-        disabled={isLoading}
         className="h-8 w-8 rounded-full duration-300 hover:bg-sky-700 hover:text-white"
       >
-        <Plus className="w-4 h-4" />
+        <TooltipComponent text="Increase stock">
+          <Plus className="w-4 h-4" />
+        </TooltipComponent>
       </Button>
-      <span className="font-semibold">{quantity}</span>
+      <Input
+        type="number"
+        value={quantity}
+        onChange={handleBulkUpdate}
+        className="w-12 text-center border-none shadow-none focus-visible:outline-none focus-visible:ring-0 no-arrows"
+        title="Enter quantity manually"
+      />
       <Button
         variant="secondary"
-        className="h-8 w-8 rounded-full duration-300 hover:bg-red-700 hover:text-white"
+        onClick={decreaseQuantityHandler}
+        className={`h-8 w-8 rounded-full duration-300 hover:bg-red-700 hover:text-white ${
+          quantity === 0 && "opacity-0"
+        }`}
       >
-        <Minus className="w-4 h-4" />
+        <TooltipComponent text="Decrease stock">
+          <Minus className="w-4 h-4" />
+        </TooltipComponent>
       </Button>
     </div>
   );

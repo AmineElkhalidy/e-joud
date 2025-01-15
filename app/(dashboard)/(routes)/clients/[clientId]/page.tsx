@@ -21,7 +21,7 @@ const ClientDetailsPage = async ({
     },
   });
 
-  const orders = await db.order.findMany({
+  const purchases = await db.purchase.findMany({
     where: {
       clientId,
     },

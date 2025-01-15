@@ -29,7 +29,7 @@ export async function GET() {
       return new NextResponse("Unauthorized!", { status: 401 });
     }
 
-    const clients = await db.client.findMany({ include: { orders: true } });
+    const clients = await db.client.findMany({ include: { purchase: true } });
     return NextResponse.json(clients);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

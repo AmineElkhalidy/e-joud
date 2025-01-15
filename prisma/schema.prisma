@@ -25,14 +25,13 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  OrderItem OrderItem[]
+  PurchasedItem PurchasedItem[]
 }
 
 model Category {
   id        String    @id @default(uuid())
   name      String
   products  Product[]
-
 }
 
 model Client {
@@ -40,45 +39,54 @@ model Client {
   userId      String
   fullName          String
 
-  // Relation to orders
-  orders        Order[]
+  // Relation to purchase
+  clientType    ClientType @default(REGULAR)
+  purchase        Purchase[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
 
-model Order {
+model Purchase {
   id         String      @id @default(uuid())
   userId      String
-  clientId   String
-  client     Client      @relation(fields: [clientId], references: [id])
+  clientId   String?
+  client     Client?      @relation(fields: [clientId], references: [id])
   totalPrice Float
   // For professionals, they may pay later or partial
   // so you could add an enum for PaymentStatus or separate columns for tracking
+ 
+  paidAmount    Float         @default(0)  // Tracks partial payments
   paymentStatus PaymentStatus @default(PENDING)
-
+  dueDate       DateTime?     // Optional due date for pending payments
   // Relation to order items
-  orderItems OrderItem[]
+  purchasedItems PurchasedItem[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
 
-model OrderItem {
+model PurchasedItem {
   id        String   @id @default(uuid())
-  orderId   String
+  purchaseId   String
   productId String
   quantity  Int
   // store snapshot of product price at the time of order
   price     Float   
 
-  order     Order    @relation(fields: [orderId], references: [id])
+  purchase     Purchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-
 enum PaymentStatus {
   PAID
   PENDING
+  PARTIALLY_PAID
+}
+
+
+enum ClientType {
+  REGULAR
+  PROFESSIONAL
 }

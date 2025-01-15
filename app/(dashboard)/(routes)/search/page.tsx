@@ -9,7 +9,7 @@ import ProductsList from "@/components/ProductsList";
 import { getProducts } from "@/actions/get-products";
 
 export const metadata: Metadata = {
-  title: "Search by Category | E-JOUD",
+  title: "Search By Category | E-JOUD",
   description: "Search for products by category.",
 };
 
