@@ -15,74 +15,70 @@ datasource db {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  userId      String
-  name        String
-  price       Float?
-  quantity    Int?
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(uuid())
+  userId         String
+  name           String
+  price          Float?     // Standard selling price
+  minimumPrice   Float?      // Minimum allowed price for sales
+  quantity       Int?       // Current stock quantity
+  minimumQuantity Int?       // Minimum stock threshold for restocking alert
+  categoryId     String?
+  category       Category?  @relation(fields: [categoryId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  PurchasedItem PurchasedItem[]
+  PurchasedItem  PurchasedItem[]
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String
-  products  Product[]
+  id       String    @id @default(uuid())
+  name     String
+  products Product[]
 }
 
 model Client {
-  id            String   @id @default(uuid())
+  id          String      @id @default(uuid())
   userId      String
-  fullName          String
-
-  // Relation to purchase
-  clientType    ClientType @default(REGULAR)
-  purchase        Purchase[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  fullName    String
+  clientType  ClientType  @default(REGULAR) // REGULAR or PROFESSIONAL
+  purchase    Purchase[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 model Purchase {
-  id         String      @id @default(uuid())
-  userId      String
-  clientId   String?
-  client     Client?      @relation(fields: [clientId], references: [id])
-  totalPrice Float
-  // For professionals, they may pay later or partial
-  // so you could add an enum for PaymentStatus or separate columns for tracking
- 
-  paidAmount    Float         @default(0)  // Tracks partial payments
-  paymentStatus PaymentStatus @default(UNPAID)
-  dueDate       DateTime?     // Optional due date for pending payments
-  // Relation to order items
+  id             String      @id @default(uuid())
+  userId         String
+  clientId       String?
+  client         Client?      @relation(fields: [clientId], references: [id])
+  totalPrice     Float
+  paidAmount     Float        @default(0)   // Tracks full/partial payments
+  paymentStatus  PaymentStatus @default(UNPAID)
+  dueDate        DateTime?    // For pending payments
+
   purchasedItems PurchasedItem[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model PurchasedItem {
-  id        String   @id @default(uuid())
-  purchaseId   String
-  productId String
-  quantity  Int
-  price     Float   
+  id          String   @id @default(uuid())
+  purchaseId  String
+  productId   String
+  quantity    Int
+  price       Float     // Snapshot of price at the time of purchase
 
-  purchase     Purchase    @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  purchase    Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 enum PaymentStatus {
   PAID
   UNPAID
 }
-
 
 enum ClientType {
   REGULAR

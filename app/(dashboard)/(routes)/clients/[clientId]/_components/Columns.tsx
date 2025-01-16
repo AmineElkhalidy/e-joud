@@ -25,7 +25,7 @@ interface PurchaseItem {
   status: "PAID" | "UNPAID";
 }
 
-export const columns: ColumnDef<PurchaseItem>[] = [
+export const columns = (clientId: string): ColumnDef<PurchaseItem>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -77,12 +77,13 @@ export const columns: ColumnDef<PurchaseItem>[] = [
     header: () => <Button variant="ghost">Status</Button>,
     cell: ({ row }) => {
       const status = row.getValue("status");
+      const purchaseItemId = row.original.id;
 
       const updateStatus = async (newStatus: "PAID" | "UNPAID") => {
         try {
-          // ✅ First, fetch the purchase related to the product
+          // ✅ Now sending clientId along with productId
           const purchaseResponse = await axios.get(
-            `/api/purchases/by-product/${row.original.id}`
+            `/api/purchases/by-product/${purchaseItemId}?clientId=${clientId}`
           );
 
           const purchaseId = purchaseResponse.data.purchaseId;
@@ -92,7 +93,6 @@ export const columns: ColumnDef<PurchaseItem>[] = [
             return;
           }
 
-          // ✅ Now update the payment status
           await axios.patch(`/api/purchases/${purchaseId}/status`, {
             status: newStatus,
           });

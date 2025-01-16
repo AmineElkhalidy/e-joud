@@ -66,11 +66,13 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => {
       const quantity = parseInt(row.getValue("quantity") || "0");
       const productId = row.original.id;
+      const productMinPrice = row.original?.minimumPrice;
 
       return (
         <ProductQuantityControl
           initialQuantity={quantity}
           productId={productId}
+          minimumPrice={productMinPrice!}
         />
       );
     },

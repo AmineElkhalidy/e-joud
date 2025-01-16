@@ -25,21 +25,27 @@ interface Props {
   productId: string;
 }
 
+// ✅ Updated schema to include minimumQuantity
 const formSchema = z.object({
   quantity: z.coerce
     .number()
     .min(1, { message: "Quantity must be 1 or higher" }),
+  minimumQuantity: z.coerce
+    .number()
+    .min(1, { message: "Minimum quantity must be 1 or higher" }),
 });
 
 const ProductQuantityForm = ({ initialData, productId }: Props) => {
-  const [isEditting, setIsEditting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
-  const toggleEdit = () => setIsEditting((current) => !current);
+  const toggleEdit = () => setIsEditing((current) => !current);
 
+  // ✅ Set default values for quantity and minimumQuantity
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       quantity: initialData?.quantity || undefined,
+      minimumQuantity: initialData?.minimumQuantity || undefined,
     },
   });
 
@@ -47,6 +53,7 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // ✅ Send both quantity and minimumQuantity to the API
       await axios.patch(`/api/products/${productId}`, values);
       toast.success("Product updated successfully!");
       toggleEdit();
@@ -61,7 +68,7 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
       <div className="font-medium flex items-center justify-between">
         <span>Product Quantity</span>
         <Button variant="ghost" onClick={toggleEdit}>
-          {isEditting ? (
+          {isEditing ? (
             <>
               <span>Cancel</span>
             </>
@@ -74,26 +81,43 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
         </Button>
       </div>
 
-      {!isEditting && (
-        <p
-          className={cn(
-            "text-sm mt-2",
-            !initialData?.quantity && "text-slate-500 italic"
-          )}
-        >
-          {initialData?.quantity
-            ? initialData?.quantity > 1
-              ? `${initialData?.quantity} Pieces`
-              : `${initialData?.quantity} Piece`
-            : "No quantity"}
-        </p>
+      {/* ✅ Display current quantity and minimum quantity */}
+      {!isEditing && (
+        <div className="mt-2 space-y-2">
+          <p
+            className={cn(
+              "text-sm",
+              !initialData?.quantity && "text-slate-500 italic"
+            )}
+          >
+            {initialData?.quantity
+              ? `${initialData?.quantity} ${
+                  initialData?.quantity > 1 ? "Pieces" : "Piece"
+                }`
+              : "No quantity set"}
+          </p>
+
+          {/* <p
+            className={cn(
+              "text-sm",
+              !initialData?.minimumQuantity && "text-slate-500 italic"
+            )}
+          >
+            {initialData?.minimumQuantity
+              ? `Minimum Stock: ${initialData?.minimumQuantity}`
+              : "No minimum quantity set"}
+          </p> */}
+        </div>
       )}
-      {isEditting && (
+
+      {/* ✅ Editing form for quantity and minimumQuantity */}
+      {isEditing && (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 mt-4"
           >
+            {/* ✅ Quantity Input */}
             <FormField
               control={form.control}
               name="quantity"
@@ -103,7 +127,28 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
                     <Input
                       disabled={isSubmitting}
                       type="number"
-                      placeholder="Set your product quantity"
+                      placeholder="Set product quantity"
+                      className="bg-white"
+                      {...field}
+                      min={1}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* ✅ Minimum Quantity Input */}
+            <FormField
+              control={form.control}
+              name="minimumQuantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      type="number"
+                      placeholder="Set minimum stock quantity"
                       className="bg-white"
                       {...field}
                       min={1}

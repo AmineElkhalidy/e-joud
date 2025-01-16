@@ -26,25 +26,33 @@ interface Props {
   productId: string;
 }
 
+// ✅ Updated schema to include minimumPrice
 const formSchema = z.object({
   price: z.coerce.number().min(0, { message: "Price must be 1 or higher" }),
+  minimumPrice: z.coerce
+    .number()
+    .min(0, { message: "Minimum price must be 1 or higher" }),
 });
 
 const ProductPriceForm = ({ initialData, productId }: Props) => {
-  const [isEditting, setIsEditting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
-  const toggleEdit = () => setIsEditting((current) => !current);
+  const toggleEdit = () => setIsEditing((current) => !current);
 
+  // ✅ Added minimumPrice to defaultValues
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       price: initialData?.price || undefined,
+      minimumPrice: initialData?.minimumPrice || undefined,
     },
   });
 
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // ✅ Now sends both price and minimumPrice
       await axios.patch(`/api/products/${productId}`, values);
       toast.success("Product updated successfully!");
       toggleEdit();
@@ -59,7 +67,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
       <div className="font-medium flex items-center justify-between">
         <span>Product Price</span>
         <Button variant="ghost" onClick={toggleEdit}>
-          {isEditting ? (
+          {isEditing ? (
             <>
               <span>Cancel</span>
             </>
@@ -72,22 +80,38 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
         </Button>
       </div>
 
-      {!isEditting && (
-        <p
-          className={cn(
-            "text-sm mt-2",
-            !initialData?.price && "text-slate-500 italic"
-          )}
-        >
-          {initialData?.price ? formatPrice(initialData?.price) : "No price"}
-        </p>
+      {!isEditing && (
+        <div className="mt-2 space-y-2">
+          <p
+            className={cn(
+              "text-sm",
+              !initialData?.price && "text-slate-500 italic"
+            )}
+          >
+            {initialData?.price
+              ? `Price: ${formatPrice(initialData?.price)}`
+              : "No price set"}
+          </p>
+          {/* <p
+            className={cn(
+              "text-sm",
+              !initialData?.minimumPrice && "text-slate-500 italic"
+            )}
+          >
+            {initialData?.minimumPrice
+              ? `Minimum Price: ${formatPrice(initialData?.minimumPrice)}`
+              : "No minimum price set"}
+          </p> */}
+        </div>
       )}
-      {isEditting && (
+
+      {isEditing && (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 mt-4"
           >
+            {/* ✅ Price Input */}
             <FormField
               control={form.control}
               name="price"
@@ -97,9 +121,29 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                     <Input
                       disabled={isSubmitting}
                       type="number"
-                      step={0.01}
-                      min={0}
-                      placeholder="Set a price for your product"
+                      min={1}
+                      placeholder="Set product price"
+                      className="bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* ✅ Minimum Price Input */}
+            <FormField
+              control={form.control}
+              name="minimumPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      type="number"
+                      min={1}
+                      placeholder="Set product minimum price"
                       className="bg-white"
                       {...field}
                     />
@@ -111,7 +155,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
 
             <div className="flex items-center gap-x-2">
               <Button disabled={!isValid || isSubmitting} type="submit">
-                Save
+                {isSubmitting ? "Saving..." : "Save"}
               </Button>
             </div>
           </form>

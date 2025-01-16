@@ -67,7 +67,11 @@ const ClientDetailsPage = async ({
         <h4 className="mb-2 font-medium">
           Purchased items by {client?.fullName}:
         </h4>
-        <DataTable columns={columns} data={purchasedItems} />
+        <DataTable
+          columns={columns}
+          data={purchasedItems}
+          clientId={clientId}
+        />
       </div>
     </div>
   );
