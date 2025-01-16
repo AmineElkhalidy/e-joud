@@ -28,9 +28,27 @@ const ClientDetailsPage = async ({
     where: {
       clientId,
     },
+    include: {
+      purchasedItems: {
+        include: {
+          product: true, // Get product details
+        },
+      },
+    },
   });
 
   if (!client) return redirect("/clients");
+
+  // Flatten purchased items for the DataTable
+  const purchasedItems = purchases.flatMap((purchase) =>
+    purchase.purchasedItems.map((item) => ({
+      id: item.id,
+      name: item.product.name,
+      price: item.price,
+      quantity: item.quantity,
+      status: purchase.paymentStatus,
+    }))
+  );
 
   return (
     <div>
@@ -42,14 +60,14 @@ const ClientDetailsPage = async ({
       </div>
 
       <div>
-        <ClientSelectedProduct />
+        <ClientSelectedProduct clientId={clientId} />
       </div>
 
       <div className="mt-10">
         <h4 className="mb-2 font-medium">
           Purchased items by {client?.fullName}:
         </h4>
-        <DataTable columns={columns} data={[]} />
+        <DataTable columns={columns} data={purchasedItems} />
       </div>
     </div>
   );

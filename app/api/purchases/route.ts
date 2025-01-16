@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { PaymentStatus } from "@prisma/client";
 
+// ✅ Handle only POST requests
 export async function POST(req: Request) {
   try {
-    const { productId, userId, clientType, clientId } = await req.json();
+    const { productId, userId, clientType, clientId, quantity, price } =
+      await req.json();
 
     // 1. Find the product
     const product = await db.product.findUnique({
@@ -15,6 +17,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { message: "Product not available" },
         { status: 404 }
+      );
+    }
+
+    if (quantity > product?.quantity) {
+      return NextResponse.json(
+        { message: "Insufficient stock available" },
+        { status: 400 }
       );
     }
 
@@ -50,15 +59,15 @@ export async function POST(req: Request) {
     });
 
     if (existingPurchase) {
-      // 4. If purchase exists, update the PurchasedItem quantity and totalPrice
+      // 4. Update the PurchasedItem quantity and totalPrice
       await db.purchasedItem.updateMany({
         where: {
           purchaseId: existingPurchase.id,
           productId: productId,
         },
         data: {
-          quantity: { increment: 1 },
-          price: product.price ?? 0,
+          quantity: { increment: quantity },
+          price: price ?? product.price ?? 0,
         },
       });
 
@@ -66,38 +75,38 @@ export async function POST(req: Request) {
         where: { id: existingPurchase.id },
         data: {
           totalPrice: {
-            increment: product.price ?? 0,
+            increment: (price ?? product.price ?? 0) * quantity,
           },
           paidAmount: {
-            increment: product.price ?? 0,
+            increment: (price ?? product.price ?? 0) * quantity,
           },
         },
       });
     } else {
-      // 5. If no purchase exists, create a new Purchase and PurchasedItem
-      const newPurchase = await db.purchase.create({
+      // 5. Create a new Purchase and PurchasedItem
+      await db.purchase.create({
         data: {
           userId,
           clientId: clientIdToUse,
-          totalPrice: product.price ?? 0,
-          paidAmount: product.price ?? 0,
-          paymentStatus: PaymentStatus.PAID,
+          totalPrice: (price ?? product.price ?? 0) * quantity,
+          paidAmount: (price ?? product.price ?? 0) * quantity,
+          paymentStatus: PaymentStatus.UNPAID,
           purchasedItems: {
             create: {
               productId: product.id,
-              quantity: 1,
-              price: product.price ?? 0,
+              quantity: quantity,
+              price: price ?? product.price ?? 0,
             },
           },
         },
       });
     }
 
-    // 6. Decrease product quantity by 1
+    // 6. Decrease product quantity
     await db.product.update({
       where: { id: productId },
       data: {
-        quantity: { decrement: 1 },
+        quantity: { decrement: quantity },
       },
     });
 
@@ -112,4 +121,17 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+// ✅ Handle unsupported methods
+export async function GET() {
+  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
+}
+
+export async function PUT() {
+  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
+}
+
+export async function DELETE() {
+  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
 }

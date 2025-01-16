@@ -36,7 +36,7 @@ export const columns: ColumnDef<Client>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Debt
+          Debts
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -48,20 +48,6 @@ export const columns: ColumnDef<Client>[] = [
       return <div className="font-semibold">{formattedDebt}</div>;
     },
   },
-  // {
-  //   accessorKey: "items",
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button
-  //         variant="ghost"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Purchased Items
-  //         <ArrowUpDown className="ml-2 h-4 w-4" />
-  //       </Button>
-  //     );
-  //   },
-  // },
   {
     id: "actions",
     cell: ({ row }) => {

@@ -45,22 +45,29 @@ const ProductQuantityControl = ({ initialQuantity, productId }: Props) => {
   };
 
   const increaseQuantityHandler = () => {
-    setQuantity((prev) => prev + 1);
     toast.success("Quantity updated!");
+    setQuantity((prev) => prev + 1);
   };
 
   const decreaseQuantityHandler = async () => {
     if (quantity <= 0) return;
 
+    if (!userId) {
+      toast.error("User not authenticated.");
+      return;
+    }
+
     try {
       setIsLoading(true);
 
       // 2. Trigger backend to record purchase
-      const response = await axios.post(`/api/purchases`, {
+      const response = await axios.post("/api/purchases", {
         productId,
         userId,
         clientType: "REGULAR",
-        clientId: "",
+        clientId: null,
+        quantity: 1,
+        price: undefined,
       });
 
       if (response.status === 200) {
@@ -87,6 +94,7 @@ const ProductQuantityControl = ({ initialQuantity, productId }: Props) => {
     <div className="ml-2 flex items-center justify-between w-[40%] md:w-[35%] ">
       <Button
         variant="secondary"
+        disabled={isLoading}
         onClick={increaseQuantityHandler}
         className="h-8 w-8 rounded-full duration-300 hover:bg-sky-700 hover:text-white"
       >
@@ -96,6 +104,7 @@ const ProductQuantityControl = ({ initialQuantity, productId }: Props) => {
       </Button>
       <Input
         type="number"
+        disabled={isLoading}
         value={quantity}
         onChange={handleBulkUpdate}
         className="w-12 text-center border-none shadow-none focus-visible:outline-none focus-visible:ring-0 no-arrows"
@@ -103,6 +112,7 @@ const ProductQuantityControl = ({ initialQuantity, productId }: Props) => {
       />
       <Button
         variant="secondary"
+        disabled={isLoading}
         onClick={decreaseQuantityHandler}
         className={`h-8 w-8 rounded-full duration-300 hover:bg-red-700 hover:text-white ${
           quantity === 0 && "opacity-0"

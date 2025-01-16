@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
   try {
     const { userId } = await auth();
-    const { clientId } = params;
+    const { clientId } = await params;
     const values = await request.json();
     if (!userId) return new NextResponse("Unauthorized", { status: 401 });
 

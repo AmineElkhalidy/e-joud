@@ -1,6 +1,5 @@
 "use client";
 
-import { Product } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,35 +12,43 @@ import {
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-export const columns: ColumnDef<Product>[] = [
+// Define purchase item type
+interface PurchaseItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  status: "PAID" | "UNPAID";
+}
+
+export const columns: ColumnDef<PurchaseItem>[] = [
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Name
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
   },
   {
     accessorKey: "price",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Price
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Price
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const price = parseFloat(row.getValue("price") || "0");
       const formattedPrice = formatPrice(price);
@@ -51,37 +58,78 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "quantity",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Quantity
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Quantity
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
       const quantity = parseInt(row.getValue("quantity") || "0");
-      const productId = row.original.id;
-
-      return <div className="">{quantity}</div>;
+      return <div className="pl-8">{quantity}</div>;
     },
   },
   {
     accessorKey: "status",
-    header: ({ column }) => {
-      return <Button variant="ghost">Status</Button>;
-    },
+    header: () => <Button variant="ghost">Status</Button>,
     cell: ({ row }) => {
-      const quantity = parseInt(row.getValue("quantity") || "0");
+      const status = row.getValue("status");
+
+      const updateStatus = async (newStatus: "PAID" | "UNPAID") => {
+        try {
+          // ✅ First, fetch the purchase related to the product
+          const purchaseResponse = await axios.get(
+            `/api/purchases/by-product/${row.original.id}`
+          );
+
+          const purchaseId = purchaseResponse.data.purchaseId;
+
+          if (!purchaseId) {
+            toast.error("Purchase not found for this product.");
+            return;
+          }
+
+          // ✅ Now update the payment status
+          await axios.patch(`/api/purchases/${purchaseId}/status`, {
+            status: newStatus,
+          });
+
+          toast.success(`Status updated to ${newStatus}`);
+        } catch (error) {
+          console.error("Error updating payment status:", error);
+          toast.error("Failed to update payment status");
+        }
+      };
+
       return (
-        <>
-          {quantity === 0 && (
-            <Badge className="bg-red-600 hover:bg-red-600">Out of Stock</Badge>
-          )}
-        </>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Badge
+              className={cn(
+                "ml-4 cursor-pointer",
+                status === "PAID"
+                  ? "bg-green-600 hover:bg-green-600"
+                  : "bg-red-600 hover:bg-red-600"
+              )}
+            >
+              {status}
+            </Badge>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {status === "PAID" ? (
+              <DropdownMenuItem onClick={() => updateStatus("UNPAID")}>
+                Mark as UNPAID
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => updateStatus("PAID")}>
+                Mark as PAID
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

@@ -56,7 +56,7 @@ model Purchase {
   // so you could add an enum for PaymentStatus or separate columns for tracking
  
   paidAmount    Float         @default(0)  // Tracks partial payments
-  paymentStatus PaymentStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID)
   dueDate       DateTime?     // Optional due date for pending payments
   // Relation to order items
   purchasedItems PurchasedItem[]
@@ -80,8 +80,7 @@ model PurchasedItem {
 
 enum PaymentStatus {
   PAID
-  PENDING
-  PARTIALLY_PAID
+  UNPAID
 }
 
 
