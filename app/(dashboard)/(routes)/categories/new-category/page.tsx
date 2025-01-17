@@ -21,11 +21,11 @@ import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   name: z.string().min(1, {
-    message: "Product name is required!",
+    message: "Category name is required!",
   }),
 });
 
-const NewProductPage = () => {
+const NewCategoryPage = () => {
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,10 +38,9 @@ const NewProductPage = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await axios.post("/api/products", values);
-      router.push(`/products/${response?.data?.id}`);
-      console.log(response);
-      toast.success("Product added successfully!");
+      const response = await axios.post("/api/categories", values);
+      router.push("/categories");
+      toast.success("Category added successfully!");
     } catch {
       toast.error("Something went wrong!");
     }
@@ -50,9 +49,9 @@ const NewProductPage = () => {
   return (
     <div className="max-w-5xl mx-auto h-full p-6 flex md:items-center md:justify-center">
       <div className="w-full h-full">
-        <h1 className="text-2xl font-semibold">Name your product</h1>
+        <h1 className="text-2xl font-semibold">Name your category</h1>
         <p className="text-sm text-muted-foreground">
-          What would you like to name your product?
+          What would you like to name your category?
           <br /> Don&apos;t worry, you can change it later.
         </p>
 
@@ -66,12 +65,12 @@ const NewProductPage = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel>Category Name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isSubmitting}
-                      placeholder="e.g 'Samsung S23 Ultra'"
+                      placeholder="e.g 'Phones'"
                     />
                   </FormControl>
 
@@ -81,7 +80,7 @@ const NewProductPage = () => {
             />
 
             <div className="flex items-center gap-x-2">
-              <Link href="/products">
+              <Link href="/categories">
                 <Button type="button" variant="ghost">
                   Cancel
                 </Button>
@@ -102,4 +101,4 @@ const NewProductPage = () => {
   );
 };
 
-export default NewProductPage;
+export default NewCategoryPage;

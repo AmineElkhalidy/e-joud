@@ -2,11 +2,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus } from "lucide-react";
+import { ShoppingCart, Plus, CornerDownRight } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import TooltipComponent from "@/components/providers/Tooltip";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useAuth } from "@clerk/nextjs";
@@ -153,13 +152,13 @@ const ProductQuantityControl = ({
         <DialogTrigger asChild>
           <Button
             variant="secondary"
-            disabled={isLoading || quantity <= 0}
+            disabled={quantity <= 0}
             title="Purchase Product"
-            className={`h-8 w-8 rounded-full duration-300 hover:bg-red-700 hover:text-white ${
-              quantity === 0 && "opacity-0"
+            className={`h-8 w-8 rounded-full duration-300 hover:bg-sky-700 hover:text-white ${
+              quantity === 0 ? "opacity-0" : "opacity-100"
             }`}
           >
-            <Minus className="w-4 h-4" />
+            <ShoppingCart className="w-4 h-4" />
           </Button>
         </DialogTrigger>
 
@@ -204,9 +203,12 @@ const ProductQuantityControl = ({
               disabled={isLoading}
               min={0}
             />
-            <p className="text-xs">
-              (Min Price:{" "}
-              <span className="text-red-600">{minimumPrice} MAD</span>)
+            <p className="text-xs flex items-center gap-1 text-muted-foreground">
+              <CornerDownRight size="12" />
+              <span>
+                Min Price:{" "}
+                <span className="text-red-600">{minimumPrice} MAD</span>
+              </span>
             </p>
           </div>
 

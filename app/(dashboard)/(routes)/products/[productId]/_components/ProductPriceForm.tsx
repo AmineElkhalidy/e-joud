@@ -26,12 +26,15 @@ interface Props {
   productId: string;
 }
 
-// ✅ Updated schema to include minimumPrice
+// ✅ Updated schema to include professionalMinimumPrice
 const formSchema = z.object({
   price: z.coerce.number().min(0, { message: "Price must be 1 or higher" }),
   minimumPrice: z.coerce
     .number()
     .min(0, { message: "Minimum price must be 1 or higher" }),
+  professionalMinimumPrice: z.coerce
+    .number()
+    .min(0, { message: "Professional minimum price must be 1 or higher" }),
 });
 
 const ProductPriceForm = ({ initialData, productId }: Props) => {
@@ -39,12 +42,14 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
   const router = useRouter();
   const toggleEdit = () => setIsEditing((current) => !current);
 
-  // ✅ Added minimumPrice to defaultValues
+  // ✅ Added professionalMinimumPrice to defaultValues
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       price: initialData?.price || undefined,
       minimumPrice: initialData?.minimumPrice || undefined,
+      professionalMinimumPrice:
+        initialData?.professionalMinimumPrice || undefined,
     },
   });
 
@@ -52,7 +57,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // ✅ Now sends both price and minimumPrice
+      // ✅ Sending all price values to the API
       await axios.patch(`/api/products/${productId}`, values);
       toast.success("Product updated successfully!");
       toggleEdit();
@@ -68,13 +73,10 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
         <span>Product Price</span>
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditing ? (
-            <>
-              <span>Cancel</span>
-            </>
+            "Cancel"
           ) : (
             <>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit price
+              <Pencil className="h-4 w-4 mr-2" /> Edit Price
             </>
           )}
         </Button>
@@ -99,8 +101,22 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
             )}
           >
             {initialData?.minimumPrice
-              ? `Minimum Price: ${formatPrice(initialData?.minimumPrice)}`
-              : "No minimum price set"}
+              ? `Minimum Price (Regular): ${formatPrice(
+                  initialData?.minimumPrice
+                )}`
+              : "No minimum price set for Regular clients"}
+          </p>
+          <p
+            className={cn(
+              "text-sm",
+              !initialData?.professionalMinimumPrice && "text-slate-500 italic"
+            )}
+          >
+            {initialData?.professionalMinimumPrice
+              ? `Minimum Price (Professional): ${formatPrice(
+                  initialData?.professionalMinimumPrice
+                )}`
+              : "No minimum price set for Professional clients"}
           </p> */}
         </div>
       )}
@@ -111,7 +127,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-4 mt-4"
           >
-            {/* ✅ Price Input */}
+            {/* ✅ Standard Price Input */}
             <FormField
               control={form.control}
               name="price"
@@ -121,6 +137,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                     <Input
                       disabled={isSubmitting}
                       type="number"
+                      step={0.01}
                       min={1}
                       placeholder="Set product price"
                       className="bg-white"
@@ -132,7 +149,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
               )}
             />
 
-            {/* ✅ Minimum Price Input */}
+            {/* ✅ Minimum Price for Regular Clients */}
             <FormField
               control={form.control}
               name="minimumPrice"
@@ -142,8 +159,31 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                     <Input
                       disabled={isSubmitting}
                       type="number"
+                      step={0.01}
                       min={1}
-                      placeholder="Set product minimum price"
+                      placeholder="Set minimum price for regular clients"
+                      className="bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* ✅ Minimum Price for Professional Clients */}
+            <FormField
+              control={form.control}
+              name="professionalMinimumPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      disabled={isSubmitting}
+                      type="number"
+                      step={0.01}
+                      min={1}
+                      placeholder="Set minimum price for professional clients"
                       className="bg-white"
                       {...field}
                     />

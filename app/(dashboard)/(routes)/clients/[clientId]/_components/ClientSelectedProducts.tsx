@@ -22,6 +22,7 @@ interface Product {
   name: string;
   price: number;
   quantity: number;
+  professionalMinimumPrice: number;
   category: {
     name: string;
   };
@@ -67,6 +68,11 @@ const ClientSelectedProduct: React.FC<Props> = ({ clientId }) => {
 
     if (quantity > selectedProduct.quantity) {
       return toast.error("Quantity exceeds available stock");
+    }
+
+    // ✅ Check if the entered price is below the professional minimum price
+    if (price < (selectedProduct.professionalMinimumPrice ?? 0)) {
+      return toast.error(`Price is lower than it's supposed to be`);
     }
 
     startTransition(async () => {
@@ -131,6 +137,16 @@ const ClientSelectedProduct: React.FC<Props> = ({ clientId }) => {
             onChange={(e) => setPrice(parseFloat(e.target.value))}
             className="w-full bg-white text-right placeholder:text-left"
           />
+
+          {/* ✅ Hint for Professional Minimum Price */}
+          {selectedProduct?.professionalMinimumPrice && (
+            <p className="absolute text-xs text-gray-500 mt-1">
+              Min Price:{" "}
+              <span className="font-semibold text-red-600">
+                {selectedProduct.professionalMinimumPrice} MAD
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="relative lg:w-fit">
@@ -146,7 +162,7 @@ const ClientSelectedProduct: React.FC<Props> = ({ clientId }) => {
           />
         </div>
       </div>
-      <div className="mt-4 flex justify-end">
+      <div className="mt-6 flex justify-end">
         <Button onClick={handleSave} disabled={isPending}>
           {isPending ? "Saving..." : "Save"}
         </Button>
