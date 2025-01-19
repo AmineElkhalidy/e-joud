@@ -17,21 +17,22 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 interface Props {
   initialData: {
-    fullName: string;
+    CIN: string;
   };
   clientId: string;
 }
 
 const formSchema = z.object({
-  fullName: z.string().min(1, {
-    message: "Client full name is required!",
+  CIN: z.string().min(1, {
+    message: "Client CIN is required!",
   }),
 });
 
-const ClientNameForm = ({ initialData, clientId }: Props) => {
+const ClientCINForm = ({ initialData, clientId }: Props) => {
   const [isEditting, setIsEditting] = useState(false);
   const router = useRouter();
   const toggleEdit = () => setIsEditting((current) => !current);
@@ -45,7 +46,7 @@ const ClientNameForm = ({ initialData, clientId }: Props) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(`/api/clients/${clientId}`, values);
-      toast.success("Client Name updated successfully!");
+      toast.success("Client CIN updated successfully!");
       toggleEdit();
       router.refresh();
     } catch {
@@ -56,7 +57,7 @@ const ClientNameForm = ({ initialData, clientId }: Props) => {
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        <span>Client Name</span>
+        <span>Client CIN</span>
         <Button variant="ghost" onClick={toggleEdit}>
           {isEditting ? (
             <>
@@ -65,13 +66,23 @@ const ClientNameForm = ({ initialData, clientId }: Props) => {
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit name
+              Edit CIN
             </>
           )}
         </Button>
       </div>
 
-      {!isEditting && <p className="text-sm mt-2">{initialData?.fullName}</p>}
+      {!isEditting && (
+        <p
+          className={cn(
+            "text-sm mt-2",
+            !initialData?.CIN && "text-slate-500 italic"
+          )}
+        >
+          {initialData?.CIN ? initialData?.CIN : "No Client CIN provided!"}
+        </p>
+      )}
+
       {isEditting && (
         <Form {...form}>
           <form
@@ -80,13 +91,13 @@ const ClientNameForm = ({ initialData, clientId }: Props) => {
           >
             <FormField
               control={form.control}
-              name="fullName"
+              name="CIN"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
-                      placeholder="e.g. 'Samsung S23 Ultra'"
+                      placeholder="e.g. 'Y489848'"
                       className="bg-white"
                       {...field}
                     />
@@ -108,4 +119,4 @@ const ClientNameForm = ({ initialData, clientId }: Props) => {
   );
 };
 
-export default ClientNameForm;
+export default ClientCINForm;

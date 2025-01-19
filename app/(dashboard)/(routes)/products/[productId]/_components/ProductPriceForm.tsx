@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Product } from "@prisma/client";
 import { formatPrice } from "@/lib/format";
+import { Label } from "@/components/ui/label";
 
 interface Props {
   initialData: Product;
@@ -133,6 +134,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
               name="price"
               render={({ field }) => (
                 <FormItem>
+                  <Label className="text-muted-foreground">Price</Label>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
@@ -155,6 +157,9 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
               name="minimumPrice"
               render={({ field }) => (
                 <FormItem>
+                  <Label className="text-muted-foreground">
+                    Minimum selling price for clients
+                  </Label>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
@@ -177,6 +182,9 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
               name="professionalMinimumPrice"
               render={({ field }) => (
                 <FormItem>
+                  <Label className="text-muted-foreground">
+                    Minimum selling price for '7rayfi'
+                  </Label>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}

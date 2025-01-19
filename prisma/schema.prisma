@@ -45,6 +45,7 @@ model Client {
   id          String      @id @default(uuid())
   userId      String
   fullName    String
+  CIN         String?
   clientType  ClientType  @default(REGULAR) // REGULAR or PROFESSIONAL
   purchase    Purchase[]
   createdAt   DateTime    @default(now())

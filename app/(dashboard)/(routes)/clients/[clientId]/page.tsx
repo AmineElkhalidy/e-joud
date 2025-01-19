@@ -7,6 +7,7 @@ import ClientActions from "./_components/ClientActions";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/Columns";
 import ClientSelectedProduct from "./_components/ClientSelectedProducts";
+import ClientCINForm from "./_components/ClientCINForm";
 
 const ClientDetailsPage = async ({
   params,
@@ -55,8 +56,9 @@ const ClientDetailsPage = async ({
       <div className="flex justify-end mt-4">
         <ClientActions clientId={clientId} />
       </div>
-      <div>
+      <div className="grid md:grid-cols-2 gap-6 mt-16">
         <ClientNameForm initialData={client} clientId={clientId} />
+        <ClientCINForm initialData={client} clientId={clientId} />
       </div>
 
       <div>

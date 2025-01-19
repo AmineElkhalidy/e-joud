@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 interface Props {
   initialData: Product;
@@ -123,6 +124,7 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
               name="quantity"
               render={({ field }) => (
                 <FormItem>
+                  <Label className="text-muted-foreground">Quantity</Label>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
@@ -144,6 +146,9 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
               name="minimumQuantity"
               render={({ field }) => (
                 <FormItem>
+                  <Label className="text-muted-foreground">
+                    Minimum quantity to trigger 'Out of Stock' alert
+                  </Label>
                   <FormControl>
                     <Input
                       disabled={isSubmitting}
