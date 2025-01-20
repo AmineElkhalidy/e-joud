@@ -18,7 +18,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(product);
-  } catch (error) {}
+  } catch (error) {
+    return NextResponse.json({ error }, { status: 500 });
+  }
 }
 
 export async function GET() {
@@ -32,7 +34,6 @@ export async function GET() {
 
     return NextResponse.json(categories);
   } catch (error) {
-    console.log("[GETTING PRODUCTS]", error);
     return NextResponse.json({ error }, { status: 500 });
   }
 }

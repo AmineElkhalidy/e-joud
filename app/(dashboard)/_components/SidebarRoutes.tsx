@@ -36,11 +36,6 @@ const routes = [
     label: "Orders",
     href: "/orders",
   },
-  {
-    icon: BarChart,
-    label: "Analytics",
-    href: "/analytics",
-  },
 ];
 
 const SidebarRoutes = () => {
