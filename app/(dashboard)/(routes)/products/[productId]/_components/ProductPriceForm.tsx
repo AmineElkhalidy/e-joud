@@ -143,7 +143,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                       min={1}
                       placeholder="Set product price"
                       className="bg-white"
-                      {...field}
+                      {...(field ?? "")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -168,7 +168,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                       min={1}
                       placeholder="Set minimum price for regular clients"
                       className="bg-white"
-                      {...field}
+                      {...(field ?? "")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -193,7 +193,7 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
                       min={1}
                       placeholder="Set minimum price for professional clients"
                       className="bg-white"
-                      {...field}
+                      {...(field ?? "")}
                     />
                   </FormControl>
                   <FormMessage />

@@ -7,7 +7,7 @@ import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/Columns";
 
 export const metadata: Metadata = {
-  title: "Categories List | E-JOUD",
+  title: "Categories | E-JOUD",
   description: "Categories List",
 };
 

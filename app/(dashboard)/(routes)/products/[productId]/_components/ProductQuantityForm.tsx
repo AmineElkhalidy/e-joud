@@ -131,7 +131,7 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
                       type="number"
                       placeholder="Set product quantity"
                       className="bg-white"
-                      {...field}
+                      {...(field ?? "")}
                       min={1}
                     />
                   </FormControl>
@@ -155,7 +155,7 @@ const ProductQuantityForm = ({ initialData, productId }: Props) => {
                       type="number"
                       placeholder="Set minimum stock quantity"
                       className="bg-white"
-                      {...field}
+                      {...(field ?? "")}
                       min={1}
                     />
                   </FormControl>

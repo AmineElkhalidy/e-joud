@@ -38,15 +38,8 @@ const CategoryDetailsPage = async ({
           <CategoryActions categoryId={categoryId} />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6 mt-16">
-          <div>
-            <div className="flex items-center gap-x-2 font-medium">
-              <IconBadge icon={LayoutDashboard} />
-              <h2 className="text-lg font-semibold">Customize your category</h2>
-            </div>
-
-            <CategoryNameForm initialData={category} categoryId={categoryId} />
-          </div>
+        <div className="grid md:grid-cols-2 mt-6">
+          <CategoryNameForm initialData={category} categoryId={categoryId} />
         </div>
 
         <div className="w-full mt-6 flex justify-end">

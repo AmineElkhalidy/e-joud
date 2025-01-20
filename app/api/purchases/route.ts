@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (quantity > product?.quantity) {
+    if (quantity > product?.quantity!) {
       return NextResponse.json(
         { message: "Insufficient stock available" },
         { status: 400 }

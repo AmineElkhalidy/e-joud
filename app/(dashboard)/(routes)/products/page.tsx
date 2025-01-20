@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 
 export const metadata: Metadata = {
-  title: "Products List | E-JOUD",
+  title: "Products | E-JOUD",
   description: "Our Products",
 };
 

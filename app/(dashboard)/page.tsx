@@ -12,11 +12,7 @@ const Dashboard = async () => {
   const { userId } = await auth();
 
   if (!userId) redirect("/sign-in");
-  return (
-    <div>
-      <p>No data!</p>
-    </div>
-  );
+  return <div></div>;
 };
 
 export default Dashboard;
