@@ -7,7 +7,11 @@ export const metadata: Metadata = {
 };
 
 const OrdersPage = () => {
-  return <div></div>;
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-6">Orders History</h1>
+    </div>
+  );
 };
 
 export default OrdersPage;

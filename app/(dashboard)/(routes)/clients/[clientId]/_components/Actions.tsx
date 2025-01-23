@@ -23,8 +23,12 @@ const ClientActions = ({ clientId }: Props) => {
       toast.success("Client deleted!");
       router.refresh();
       router.push(`/clients`);
-    } catch (error) {
-      toast.error("Something went wrong!");
+    } catch (error: any) {
+      if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Something went wrong!");
+      }
     } finally {
       setIsLoading(false);
     }
