@@ -27,7 +27,7 @@ const ClientsPage = async () => {
     },
     include: {
       purchase: {
-        where: { paymentStatus: "UNPAID" }, // Include only UNPAID purchases
+        where: { paymentStatus: "UNPAID" },
         select: {
           totalPrice: true,
         },

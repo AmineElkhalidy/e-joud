@@ -7,6 +7,7 @@ import {
   Users,
   Layers,
   ShoppingCart,
+  Undo2,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
@@ -30,6 +31,11 @@ const routes = [
     icon: Users,
     label: "Clients",
     href: "/clients",
+  },
+  {
+    icon: Undo2,
+    label: "Returns",
+    href: "/returns",
   },
   {
     icon: ShoppingCart,
