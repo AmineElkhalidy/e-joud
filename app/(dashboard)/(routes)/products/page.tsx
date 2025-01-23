@@ -25,9 +25,23 @@ const ProductsPage = async () => {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      category: true, // Include category relation
+    },
   });
 
-  return <DataTable columns={columns} data={products} />;
+  const categories = await db.category.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return (
+    <DataTable columns={columns} data={products} categories={categories} />
+  );
 };
 
 export default ProductsPage;

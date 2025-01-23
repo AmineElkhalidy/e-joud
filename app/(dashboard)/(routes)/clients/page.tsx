@@ -25,9 +25,23 @@ const ClientsPage = async () => {
     orderBy: {
       fullName: "asc",
     },
+    include: {
+      purchase: {
+        where: { paymentStatus: "UNPAID" }, // Include only UNPAID purchases
+        select: {
+          totalPrice: true,
+        },
+      },
+    },
   });
 
-  return <DataTable columns={columns} data={clients} />;
+  // Map through clients to calculate totalDebt
+  const clientsWithDebt = clients.map((client) => ({
+    ...client,
+    totalDebt: client.purchase.reduce((sum, p) => sum + p.totalPrice, 0),
+  }));
+
+  return <DataTable columns={columns} data={clientsWithDebt} />;
 };
 
 export default ClientsPage;

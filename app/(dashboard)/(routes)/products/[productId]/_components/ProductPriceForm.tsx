@@ -92,33 +92,9 @@ const ProductPriceForm = ({ initialData, productId }: Props) => {
             )}
           >
             {initialData?.price
-              ? `Price: ${formatPrice(initialData?.price)}`
+              ? `${formatPrice(initialData?.price)}`
               : "No price set"}
           </p>
-          {/* <p
-            className={cn(
-              "text-sm",
-              !initialData?.minimumPrice && "text-slate-500 italic"
-            )}
-          >
-            {initialData?.minimumPrice
-              ? `Minimum Price (Regular): ${formatPrice(
-                  initialData?.minimumPrice
-                )}`
-              : "No minimum price set for Regular clients"}
-          </p>
-          <p
-            className={cn(
-              "text-sm",
-              !initialData?.professionalMinimumPrice && "text-slate-500 italic"
-            )}
-          >
-            {initialData?.professionalMinimumPrice
-              ? `Minimum Price (Professional): ${formatPrice(
-                  initialData?.professionalMinimumPrice
-                )}`
-              : "No minimum price set for Professional clients"}
-          </p> */}
         </div>
       )}
 

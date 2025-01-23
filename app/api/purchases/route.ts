@@ -1,137 +1,66 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { PaymentStatus } from "@prisma/client";
 
-// ✅ Handle only POST requests
-export async function POST(req: Request) {
+export async function POST(request: Request) {
+  const { clientId, productId, price, quantity } = await request.json();
+
   try {
-    const { productId, userId, clientType, clientId, quantity, price } =
-      await req.json();
-
-    // 1. Find the product
+    // Validate client and product existence
+    const client = await db.client.findUnique({ where: { id: clientId } });
     const product = await db.product.findUnique({
       where: { id: productId },
     });
 
-    if (!product || product.quantity === 0) {
-      return NextResponse.json(
-        { message: "Product not available" },
-        { status: 404 }
-      );
+    if (!client) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    if (quantity > product?.quantity!) {
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    if (product?.quantity! < quantity) {
       return NextResponse.json(
-        { message: "Insufficient stock available" },
+        { error: `Insufficient stock for ${product.name}` },
         { status: 400 }
       );
     }
 
-    let clientIdToUse: string | undefined = undefined;
+    // Calculate total price
+    const totalPrice = price * quantity;
 
-    // 2. Handle PROFESSIONAL client lookup
-    if (clientType === "PROFESSIONAL" && clientId) {
-      const client = await db.client.findUnique({
-        where: { id: clientId },
-      });
-
-      if (!client) {
-        return NextResponse.json(
-          { message: "Professional client not found" },
-          { status: 404 }
-        );
-      }
-
-      clientIdToUse = client.id;
-    }
-
-    // 3. Check if a purchase for the same product and user/client already exists
-    const existingPurchase = await db.purchase.findFirst({
-      where: {
-        userId,
-        clientId: clientIdToUse,
+    // Create a purchase record
+    const purchase = await db.purchase.create({
+      data: {
+        clientId,
+        userId: client.userId,
+        totalPrice,
         purchasedItems: {
-          some: {
-            productId: productId,
+          create: {
+            productId,
+            price,
+            quantity,
           },
         },
       },
+      include: {
+        purchasedItems: true,
+      },
     });
 
-    if (existingPurchase) {
-      // 4. Update the PurchasedItem quantity and totalPrice
-      await db.purchasedItem.updateMany({
-        where: {
-          purchaseId: existingPurchase.id,
-          productId: productId,
-        },
-        data: {
-          quantity: { increment: quantity },
-          price: price ?? product.price ?? 0,
-        },
-      });
-
-      await db.purchase.update({
-        where: { id: existingPurchase.id },
-        data: {
-          totalPrice: {
-            increment: (price ?? product.price ?? 0) * quantity,
-          },
-          paidAmount: {
-            increment: (price ?? product.price ?? 0) * quantity,
-          },
-        },
-      });
-    } else {
-      // 5. Create a new Purchase and PurchasedItem
-      await db.purchase.create({
-        data: {
-          userId,
-          clientId: clientIdToUse,
-          totalPrice: (price ?? product.price ?? 0) * quantity,
-          paidAmount: (price ?? product.price ?? 0) * quantity,
-          paymentStatus: PaymentStatus.UNPAID,
-          purchasedItems: {
-            create: {
-              productId: product.id,
-              quantity: quantity,
-              price: price ?? product.price ?? 0,
-            },
-          },
-        },
-      });
-    }
-
-    // 6. Decrease product quantity
+    // Update product quantity
     await db.product.update({
       where: { id: productId },
       data: {
-        quantity: { decrement: quantity },
+        quantity: product.quantity! - quantity,
       },
     });
 
-    return NextResponse.json(
-      { message: "Purchase recorded successfully!" },
-      { status: 200 }
-    );
+    return NextResponse.json(purchase, { status: 201 });
   } catch (error) {
-    console.error("Error processing purchase:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
-}
-
-// ✅ Handle unsupported methods
-export async function GET() {
-  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
-}
-
-export async function PUT() {
-  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
-}
-
-export async function DELETE() {
-  return NextResponse.json({ message: "Method Not Allowed" }, { status: 405 });
 }

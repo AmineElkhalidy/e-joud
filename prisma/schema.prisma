@@ -58,9 +58,9 @@ model Purchase {
   clientId       String?
   client         Client?      @relation(fields: [clientId], references: [id])
   totalPrice     Float
-  paidAmount     Float        @default(0)   // Tracks full/partial payments
+  paidAmount     Float        @default(0)  
   paymentStatus  PaymentStatus @default(UNPAID)
-  dueDate        DateTime?    // For pending payments
+  dueDate        DateTime?    
 
   purchasedItems PurchasedItem[]
   createdAt      DateTime      @default(now())
@@ -84,11 +84,13 @@ model PurchasedItem {
 model SalesRecord {
   id        String   @id @default(uuid())
   userId    String
-  date      DateTime @default(now()) // Sales date
+  date      DateTime @default(now())
   totalSales Float
   ordersCount Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([date, userId])
 }
 
 

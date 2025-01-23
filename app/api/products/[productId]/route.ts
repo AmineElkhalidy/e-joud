@@ -23,7 +23,6 @@ export async function PATCH(
 
     return NextResponse.json(product);
   } catch (error) {
-    console.error("[PATCHING PRODUCT]", error);
     return NextResponse.json(error);
   }
 }
