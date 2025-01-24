@@ -41,8 +41,12 @@ const NewCategoryPage = () => {
       const response = await axios.post("/api/categories", values);
       router.push("/categories");
       toast.success("Category added successfully!");
-    } catch {
-      toast.error("Something went wrong!");
+    } catch (error: any) {
+      if (error.response?.status === 400 && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Something went wrong!");
+      }
     }
   }
 

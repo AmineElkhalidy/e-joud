@@ -15,13 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -35,30 +28,19 @@ import { PlusCircle } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  categories: { id: string; name: string }[]; // Add categories prop
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  categories,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
 
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
-    null
-  );
-
-  const filteredData = React.useMemo(() => {
-    if (!selectedCategory || selectedCategory === "ALL") return data;
-    return data.filter((item) => item?.category?.id === selectedCategory);
-  }, [data, selectedCategory]);
-
   const table = useReactTable({
-    data: filteredData,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -74,36 +56,15 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4 justify-between gap-x-4 lg:gap-x-0">
+      <div className="pb-4">
         <Input
-          placeholder="Filter products..."
+          placeholder="Filter return..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-
-        <Select onValueChange={(value) => setSelectedCategory(value || null)}>
-          <SelectTrigger className="max-w-sm">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Link href="/products/new-product">
-          <Button className="bg-sky-700 duration-300 hover:bg-sky-900">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            New Product
-          </Button>
-        </Link>
       </div>
 
       <div className="rounded-md border">
@@ -149,7 +110,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No products to list, start adding some!
+                  No returns to list.
                 </TableCell>
               </TableRow>
             )}
