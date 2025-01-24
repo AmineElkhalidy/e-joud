@@ -14,6 +14,7 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/format";
 import ProductQuantityControl from "./ProductQuantityControl";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -97,24 +98,18 @@ export const columns: ColumnDef<Product>[] = [
     id: "actions",
     cell: ({ row }) => {
       const { id } = row.original;
+      const router = useRouter();
+
+      const handleProductEdit = () => {
+        router.push(`/products/${id}`);
+      };
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-4 w-4 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
-            <Link href={`/products/${id}`}>
-              <DropdownMenuItem>
-                <Pencil className="h-4 w-4 mr-2" /> Edit
-              </DropdownMenuItem>
-            </Link>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex justify-end mr-4">
+          <Button variant="outline" size="sm" onClick={handleProductEdit}>
+            <Pencil className="h-2 w-2 mr-1" /> Edit
+          </Button>
+        </div>
       );
     },
   },

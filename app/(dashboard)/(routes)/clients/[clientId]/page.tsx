@@ -8,6 +8,7 @@ import ClientSelectedProduct from "./_components/ClientSelectedProduct";
 import Actions from "./_components/Actions";
 import { DataTable } from "./_components/DataTable";
 import { columns } from "./_components/Columns";
+import ClientPurchasesTable from "./_components/ClientPurchasesTable";
 
 const ClientDetailsPage = async ({
   params,
@@ -87,7 +88,9 @@ const ClientDetailsPage = async ({
 
         <div className="mt-12">
           <h2 className="text-lg font-medium mb-4">Orders History</h2>
-          <DataTable columns={columns} data={flattenedPurchases} />
+          {/* <DataTable columns={columns} data={flattenedPurchases} /> */}
+
+          <ClientPurchasesTable purchases={flattenedPurchases} />
         </div>
       </div>
     </>

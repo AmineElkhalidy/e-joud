@@ -40,10 +40,13 @@ const NewProductPage = () => {
     try {
       const response = await axios.post("/api/products", values);
       router.push(`/products/${response?.data?.id}`);
-      console.log(response);
       toast.success("Product added successfully!");
-    } catch {
-      toast.error("Something went wrong!");
+    } catch (error: any) {
+      if (error.response?.status === 400 && error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error("Something went wrong!");
+      }
     }
   }
 

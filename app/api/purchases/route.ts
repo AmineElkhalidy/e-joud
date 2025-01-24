@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(request: Request) {
   const { clientId, productId, price, quantity } = await request.json();
@@ -60,6 +61,44 @@ export async function POST(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const { userId } = await auth();
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const orders = await db.purchase.findMany({
+      where: { userId },
+      include: {
+        client: true, // Ensure the `client` relation exists in your schema
+        purchasedItems: true, // Ensure `purchasedItems` relation exists in your schema
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Map orders for better response structure
+    const mappedOrders = orders.map((order) => ({
+      id: order.id,
+      client: {
+        name: order?.client?.fullName || "Unknown",
+        type: order?.client?.clientType || "Unknown",
+      },
+      totalItems: order?.purchasedItems?.length,
+      totalPrice: order.totalPrice,
+      paymentStatus: order.paymentStatus,
+      createdAt: order.createdAt,
+    }));
+
+    return NextResponse.json(mappedOrders);
+  } catch (error) {
+    console.error("Error fetching orders:", error); // Log the error
+    return NextResponse.json(
+      { error: "Failed to fetch orders" },
       { status: 500 }
     );
   }
