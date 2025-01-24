@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -79,8 +80,9 @@ const AddReturnDialog = ({ products }: Props) => {
       <DialogTrigger asChild>
         <Button
           onClick={() => setIsOpen(true)}
-          className="bg-sky-700 hover:bg-sky-900"
+          className="bg-sky-700 duration-300 hover:bg-sky-900"
         >
+          <PlusCircle className="w-4 h-4 mr-2" />
           New Return
         </Button>
       </DialogTrigger>
