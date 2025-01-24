@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bell, AlertCircle, X } from "lucide-react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -8,10 +8,10 @@ import { useRouter } from "next/navigation";
 const Notification = () => {
   const [lowStockProducts, setLowStockProducts] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch low stock products
     const fetchLowStockProducts = async () => {
       try {
         const response = await axios.get("/api/products/low-stock");
@@ -21,8 +21,34 @@ const Notification = () => {
       }
     };
 
+    // Fetch initially
     fetchLowStockProducts();
+
+    // Set up polling every 10 seconds
+    const intervalId = setInterval(fetchLowStockProducts, 10000);
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
   }, []);
+
+  // Handle clicking outside of the dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Dismiss a specific product notification
   const handleDismiss = (productId: string) => {
@@ -32,7 +58,7 @@ const Notification = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className="relative p-2 rounded-full hover:bg-gray-100"

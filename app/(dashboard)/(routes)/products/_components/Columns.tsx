@@ -83,15 +83,20 @@ export const columns: ColumnDef<Product>[] = [
     },
     cell: ({ row }) => {
       const quantity = parseInt(row.getValue("quantity") || "0");
-      return (
-        <>
-          {quantity === 0 ? (
-            <Badge className="bg-red-600 hover:bg-red-600">Out of Stock</Badge>
-          ) : (
-            <Badge className="bg-green-600 hover:bg-green-600">In Stock</Badge>
-          )}
-        </>
-      );
+      const minimumQuantity = row.original.minimumQuantity || 0;
+      if (quantity === 0) {
+        return (
+          <Badge className="bg-red-600 hover:bg-red-600">Out of Stock</Badge>
+        );
+      } else if (quantity <= minimumQuantity) {
+        return (
+          <Badge className="bg-yellow-500 hover:bg-yellow-500">Low Stock</Badge>
+        );
+      } else {
+        return (
+          <Badge className="bg-green-600 hover:bg-green-600">In Stock</Badge>
+        );
+      }
     },
   },
   {
