@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
 import { DatePickerWithPresets } from "@/components/ui/date-picker";
@@ -19,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 interface Order {
   id: string;
-  client: { name: string; type: string };
+  client: { id: string; name: string; type: string };
   totalItems: number;
   totalPrice: number;
   paymentStatus: "PAID" | "UNPAID";

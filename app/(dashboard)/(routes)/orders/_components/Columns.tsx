@@ -11,12 +11,16 @@ export const columns: ColumnDef<any>[] = [
   {
     accessorKey: "client.name",
     header: "Client Name",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-x-2">
-        <span className="font-semibold">{row.original.client.name}</span>
-        <Badge variant="outline">{row.original.client.type}</Badge>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const client = row.original.client;
+
+      return (
+        <div className="flex items-center gap-x-2">
+          <span className="font-semibold">{client.name}</span>
+          <Badge variant="outline">{client.type}</Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "totalPrice",
@@ -52,12 +56,12 @@ export const columns: ColumnDef<any>[] = [
     id: "actions",
     cell: ({ row }) => {
       const router = useRouter();
-      const handleViewOrder = () => {
-        router.push(`/orders/${row.original.id}`);
+      const handleViewDetails = () => {
+        router.push(`/clients/${row.original.client.id}/orders`);
       };
 
       return (
-        <Button variant="outline" size="sm" onClick={handleViewOrder}>
+        <Button variant="outline" size="sm" onClick={handleViewDetails}>
           View Details
         </Button>
       );

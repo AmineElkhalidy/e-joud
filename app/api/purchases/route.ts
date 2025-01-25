@@ -72,33 +72,47 @@ export async function GET() {
     if (!userId)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const orders = await db.purchase.findMany({
+    // Fetch all purchases and aggregate by client
+    const purchases = await db.purchase.groupBy({
+      by: ["clientId"],
       where: { userId },
-      include: {
-        client: true, // Ensure the `client` relation exists in your schema
-        purchasedItems: true, // Ensure `purchasedItems` relation exists in your schema
-      },
-      orderBy: { createdAt: "desc" },
+      _max: { createdAt: true },
+      _sum: { totalPrice: true },
     });
 
-    // Map orders for better response structure
-    const mappedOrders = orders.map((order) => ({
-      id: order.id,
-      client: {
-        name: order?.client?.fullName || "Unknown",
-        type: order?.client?.clientType || "Unknown",
-      },
-      totalItems: order?.purchasedItems?.length,
-      totalPrice: order.totalPrice,
-      paymentStatus: order.paymentStatus,
-      createdAt: order.createdAt,
-    }));
+    const aggregatedPurchases = await Promise.all(
+      purchases.map(async (groupedPurchase) => {
+        const latestPurchase = await db.purchase.findFirst({
+          where: {
+            userId,
+            clientId: groupedPurchase.clientId,
+            createdAt: groupedPurchase._max.createdAt,
+          },
+          include: {
+            client: true, // Include client relation
+          },
+        });
 
-    return NextResponse.json(mappedOrders);
+        return {
+          id: latestPurchase?.id || "",
+          client: {
+            id: latestPurchase?.client?.id || "",
+            name: latestPurchase?.client?.fullName || "Unknown",
+            type: latestPurchase?.client?.clientType || "Unknown",
+          },
+          totalItems: groupedPurchase._sum.totalItems || 0,
+          totalPrice: groupedPurchase._sum.totalPrice || 0,
+          paymentStatus: latestPurchase?.paymentStatus || "Unknown",
+          createdAt: latestPurchase?.createdAt || new Date(),
+        };
+      })
+    );
+
+    return NextResponse.json(aggregatedPurchases);
   } catch (error) {
-    console.error("Error fetching orders:", error); // Log the error
+    console.error("Error fetching aggregated purchases:", error);
     return NextResponse.json(
-      { error: "Failed to fetch orders" },
+      { error: "Failed to fetch purchases" },
       { status: 500 }
     );
   }

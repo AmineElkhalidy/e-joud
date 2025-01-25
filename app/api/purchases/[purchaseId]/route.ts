@@ -6,24 +6,41 @@ export async function GET(
   request: Request,
   { params }: { params: { purchaseId: string } }
 ) {
-  const { userId } = await auth();
-  const { purchaseId } = await params;
+  try {
+    const { userId } = await auth();
+    const { purchaseId } = await params;
 
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  const order = await db.purchase.findUnique({
-    where: { id: purchaseId },
-    include: {
-      client: true,
-      purchasedItems: {
-        include: { product: true },
+    if (!purchaseId) {
+      return NextResponse.json(
+        { error: "Purchase ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const order = await db.purchase.findUnique({
+      where: { id: purchaseId },
+      include: {
+        client: true,
+        purchasedItems: {
+          include: { product: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!order)
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
-  return NextResponse.json(order);
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch order details" },
+      { status: 500 }
+    );
+  }
 }
