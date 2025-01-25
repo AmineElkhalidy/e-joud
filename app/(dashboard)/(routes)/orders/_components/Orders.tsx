@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/navigation";
 
 interface Order {
   id: string;
@@ -24,32 +22,21 @@ interface Order {
   createdAt: string;
 }
 
-const Orders = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+interface OrdersProps {
+  initialOrders: Order[];
+}
+
+const Orders = ({ initialOrders }: OrdersProps) => {
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>(initialOrders);
   const [searchTerm, setSearchTerm] = useState("");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<
     "ALL" | "PAID" | "UNPAID"
   >("ALL");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const router = useRouter();
-
-  // Fetch orders
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await axios.get("/api/purchases");
-        setOrders(response.data);
-        setFilteredOrders(response.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      }
-    };
-    fetchOrders();
-  }, []);
 
   // Filter orders
-  useEffect(() => {
+  React.useEffect(() => {
     let filtered = orders;
 
     if (searchTerm) {

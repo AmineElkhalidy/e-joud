@@ -1,165 +1,182 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { DataTable } from "../_components/DataTable";
 import { formatPrice } from "@/lib/format";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { generatePDF } from "@/lib/utils";
+import { DatePickerWithPresets } from "@/components/ui/date-picker";
+import { handlePrint } from "@/lib/utils";
 
-const storeName = "E-JOUD";
-
-interface HeaderSectionProps {
-  onPrint: () => void;
-}
-
-interface OrderInfoProps {
-  order: any;
-}
-
-interface OrderSummaryProps {
-  order: any;
-}
-
-interface PurchasedItemsTableProps {
-  items: any[];
-}
-
-const HeaderSection = ({ onPrint }: HeaderSectionProps) => (
-  <div className="flex items-center justify-between mb-6">
-    <h1 className="text-2xl font-bold">Order Details</h1>
-    <Button onClick={onPrint} className="bg-sky-700 hover:bg-sky-900">
-      Print / Download
-    </Button>
-  </div>
-);
-
-const OrderInfo = ({ order }: OrderInfoProps) => (
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <div>
-      <p>
-        <strong>Client Name:</strong> {order?.client?.name || "Unknown"}
-      </p>
-      <p>
-        <strong>Client Type:</strong>{" "}
-        <Badge>{order?.client?.clientType || "Unknown"}</Badge>
-      </p>
-    </div>
-    <div>
-      <p>
-        <strong>Order Date:</strong>{" "}
-        {format(new Date(order?.createdAt), "PPpp")}
-      </p>
-      <p>
-        <strong>Payment Status:</strong>{" "}
-        <Badge
-          className={
-            order?.paymentStatus === "PAID" ? "bg-green-600" : "bg-red-600"
-          }
-        >
-          {order?.paymentStatus}
-        </Badge>
-      </p>
-    </div>
-  </div>
-);
-
-const OrderSummary = ({ order }: OrderSummaryProps) => (
-  <div className="mb-6">
-    <p>
-      <strong>Total Price:</strong> {formatPrice(order?.totalPrice)}
-    </p>
-    <p>
-      <strong>Paid Amount:</strong> {formatPrice(order?.paidAmount)}
-    </p>
-    {order?.paymentStatus === "UNPAID" && (
-      <p>
-        <strong>Due Amount:</strong>{" "}
-        {formatPrice(order?.totalPrice - order?.paidAmount)}
-      </p>
-    )}
-  </div>
-);
-
-const PurchasedItemsTable = ({ items }: PurchasedItemsTableProps) => (
-  <div>
-    <h2 className="text-lg font-semibold mb-4">Purchased Items</h2>
-    <DataTable
-      columns={[
-        { accessorKey: "product.name", header: "Product Name" },
-        {
-          accessorKey: "price",
-          header: "Price",
-          cell: ({ row }) => formatPrice(row.original.price),
-        },
-        { accessorKey: "quantity", header: "Quantity" },
-        {
-          accessorKey: "totalPrice",
-          header: "Total Price",
-          cell: ({ row }) =>
-            formatPrice(row.original.price * row.original.quantity),
-        },
-      ]}
-      data={items}
-    />
-  </div>
-);
-
-const OrderDetailsPage = () => {
-  const { orderId } = useParams();
+const ClientOrdersPage = () => {
+  const { clientId } = useParams();
   const router = useRouter();
 
-  const [order, setOrder] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [clientDetails, setClientDetails] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
-    if (!orderId) {
-      toast.error("Invalid order ID.");
-      router.push("/orders");
+  // Set default date to today
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+
+  useEffect(() => {
+    if (!clientId) {
+      toast.error("Invalid client ID.");
+      router.push("/clients");
       return;
     }
 
-    const fetchOrderDetails = async () => {
+    const fetchClientOrders = async () => {
       try {
-        const response = await axios.get(`/api/purchases/${orderId}`);
-        setOrder(response.data);
+        const response = await axios.get(`/api/clients/${clientId}/orders`);
+        setOrders(response.data.orders);
+        setClientDetails(response.data.client);
+
+        // Filter today's orders on initial load
+        setFilteredOrders(
+          response.data.orders.filter((order) =>
+            isSameDay(new Date(order.createdAt), new Date())
+          )
+        );
       } catch (error) {
-        toast.error("Failed to fetch order details.");
-        router.push("/orders");
+        toast.error("Failed to fetch client orders.");
+        router.push("/clients");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchOrderDetails();
-  }, [orderId, router]);
+    fetchClientOrders();
+  }, [clientId, router]);
+
+  // Filter orders by selected date
+  useEffect(() => {
+    if (selectedDate) {
+      setFilteredOrders(
+        orders.filter((order) =>
+          isSameDay(new Date(order.createdAt), selectedDate)
+        )
+      );
+    } else {
+      setFilteredOrders(orders);
+    }
+  }, [selectedDate, orders]);
+
+  // Calculate the total price of all orders (not filtered)
+  const calculateTotalPrice = () => {
+    return orders.reduce((sum, order) => sum + order.totalPrice, 0);
+  };
 
   if (isLoading) return <p>Loading...</p>;
-  if (!order) return <p>Order not found.</p>;
-
-  const handlePrint = () => {
-    generatePDF(order, storeName);
-  };
+  if (!orders.length) return <p>No orders found for this client.</p>;
 
   return (
     <div>
       {/* Header Section */}
-      <HeaderSection onPrint={handlePrint} />
+      <div className="mb-6">
+        <div className="flex items justify-between mb-6">
+          <h1 className="text-2xl font-bold">Client Orders</h1>
+          <Button
+            onClick={() => handlePrint(filteredOrders, clientDetails, "E-JOUD")}
+            className="bg-sky-700 hover:bg-sky-900"
+          >
+            Print / Download
+          </Button>
+        </div>
 
-      {/* Order Info */}
-      <OrderInfo order={order} />
+        <div className="font-semibold">
+          <p className="flex items-center gap-2">
+            Client Name:{" "}
+            <Button size="sm" className="font-semibold">
+              {clientDetails?.fullName || "Unknown"}
+            </Button>
+          </p>
+          <p className="flex items-center gap-2 mt-2">
+            Total Price of All Orders:{" "}
+            <Button size="sm" className="font-semibold">
+              {formatPrice(calculateTotalPrice())}
+            </Button>
+          </p>
+        </div>
+      </div>
 
-      {/* Order Summary */}
-      <OrderSummary order={order} />
+      {/* Orders Table */}
+      <div className="mt-10">
+        <div className="flex items-center justify-between flex-wrap">
+          <h2 className="text-lg font-semibold mb-4">Orders List</h2>
+          {/* Filters */}
+          <div className="flex items-center gap-x-4 mb-6">
+            <DatePickerWithPresets
+              selectedDate={selectedDate}
+              onDateChange={setSelectedDate}
+            />
+            <Button
+              variant="outline"
+              onClick={() => setSelectedDate(null)}
+              disabled={!selectedDate}
+            >
+              Clear Filter
+            </Button>
+          </div>
+        </div>
 
-      {/* Purchased Items Table */}
-      <PurchasedItemsTable items={order?.purchasedItems} />
+        <DataTable
+          columns={[
+            {
+              accessorKey: "purchasedItems[0].product.name",
+              header: "Product Name",
+              cell: ({ row }) => {
+                const products = row.original.purchasedItems.map(
+                  (item) => item.product.name
+                );
+                return <span>{products.join(", ")}</span>;
+              },
+            },
+            {
+              accessorKey: "totalItems",
+              header: "Total Items",
+              cell: ({ row }) =>
+                row.original.purchasedItems.reduce(
+                  (total, item) => total + item.quantity,
+                  0
+                ),
+            },
+            {
+              accessorKey: "totalPrice",
+              header: "Total Price",
+              cell: ({ row }) => formatPrice(row.original.totalPrice),
+            },
+            {
+              accessorKey: "paymentStatus",
+              header: "Payment Status",
+              cell: ({ row }) => (
+                <span
+                  className={`px-2 py-1 text-sm rounded ${
+                    row.original.paymentStatus === "PAID"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {row.original.paymentStatus}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "createdAt",
+              header: "Order Date",
+              cell: ({ row }) =>
+                format(new Date(row.original.createdAt), "PPP HH:mm:ss"),
+            },
+          ]}
+          data={filteredOrders}
+        />
+      </div>
     </div>
   );
 };
 
-export default OrderDetailsPage;
+export default ClientOrdersPage;
