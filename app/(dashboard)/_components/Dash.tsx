@@ -20,40 +20,33 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatPrice } from "@/lib/format";
 
-// Fake data for analytics
-const fakeSalesData = [
-  { date: "2025-01-01", totalSales: 300, ordersCount: 12 },
-  { date: "2025-01-02", totalSales: 400, ordersCount: 15 },
-  { date: "2025-01-03", totalSales: 350, ordersCount: 14 },
-  { date: "2025-01-04", totalSales: 500, ordersCount: 20 },
-];
-
-const fakeTopProducts = [
-  { name: "Product A", sales: 50 },
-  { name: "Product B", sales: 40 },
-  { name: "Product C", sales: 30 },
-];
-
-const fakeCategoryDistribution = [
-  { name: "Electronics", value: 60 },
-  { name: "Accessories", value: 30 },
-  { name: "Home Appliances", value: 10 },
-];
+interface DashProps {
+  totalRevenue: number;
+  totalOrders: number;
+  topProducts: { name: string; sales: number }[];
+  categoryDistribution: { name: string; value: number }[];
+}
 
 const COLORS = ["#FF6384", "#36A2EB", "#FFCE56"];
 
-const Dash = () => {
+const Dash = ({
+  totalRevenue,
+  totalOrders,
+  topProducts,
+  categoryDistribution,
+}: DashProps) => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Analytics</h1>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold">{formatPrice(1550)}</p>
+            <p className="text-xl font-bold">{formatPrice(totalRevenue)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -61,33 +54,13 @@ const Dash = () => {
             <CardTitle>Orders</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xl font-bold">61</p>
+            <p className="text-xl font-bold">{totalOrders}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/* Historical Sales Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={fakeSalesData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="totalSales" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Top-Selling Products */}
         <Card>
           <CardHeader>
@@ -96,12 +69,44 @@ const Dash = () => {
           <CardContent>
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={fakeTopProducts}>
+                <BarChart data={topProducts}>
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
                   <Bar dataKey="sales" fill="#0369a1" />
                 </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Category Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Category Distribution</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label
+                  >
+                    {categoryDistribution.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
