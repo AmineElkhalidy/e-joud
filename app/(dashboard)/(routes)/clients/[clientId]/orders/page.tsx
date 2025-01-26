@@ -76,6 +76,8 @@ const ClientOrdersPage = () => {
 
   return (
     <div>
+      <div id="receipt-content" style={{ display: "none" }}></div>
+
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex items justify-between mb-6">
