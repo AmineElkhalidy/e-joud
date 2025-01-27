@@ -20,7 +20,8 @@ model Product {
   name           String
   price          Float?     // Standard selling price
   minimumPrice   Float?      // Minimum allowed price for sales
-  professionalMinimumPrice Float?   // ✅ Minimum price for Professional clients
+  professionalMinimumPrice Float?
+  purchasedPrice Float?   // ✅ Minimum price for Professional clients
   quantity       Int?       // Current stock quantity
   minimumQuantity Int?       // Minimum stock threshold for restocking alert
   categoryId     String?

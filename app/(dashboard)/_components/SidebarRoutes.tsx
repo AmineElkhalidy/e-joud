@@ -17,6 +17,7 @@ const routes = [
     icon: Layout,
     label: "Dashboard",
     href: "/",
+    // role: "ADMIN",
   },
   {
     icon: Layers,
@@ -47,6 +48,7 @@ const routes = [
     icon: CircleUser,
     label: "Profiles",
     href: "/profiles",
+    // role: "ADMIN",
   },
 ];
 
