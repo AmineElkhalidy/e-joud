@@ -58,7 +58,7 @@ const ReturnsPage = async () => {
   return (
     <div>
       <div className="flex items-center justify-between flex-wrap gap-4 mb-12 md:gap-0">
-        <h1 className="text-2xl font-semibold">Products for Return</h1>
+        <h1 className="text-xl font-semibold">Products for Return</h1>
         <AddReturnDialog products={products} />
       </div>
 

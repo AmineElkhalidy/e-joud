@@ -51,7 +51,7 @@ const OrdersPage = async () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">Orders History</h1>
+      <h1 className="text-xl font-bold mb-8">Orders History</h1>
 
       {/* Pass aggregated orders to the Orders component */}
       <Orders initialOrders={aggregatedOrders} />

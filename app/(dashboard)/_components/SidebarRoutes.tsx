@@ -8,6 +8,7 @@ import {
   Layers,
   ShoppingCart,
   Undo2,
+  CircleUser,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 
@@ -41,6 +42,11 @@ const routes = [
     icon: ShoppingCart,
     label: "Orders",
     href: "/orders",
+  },
+  {
+    icon: CircleUser,
+    label: "Profiles",
+    href: "/profiles",
   },
 ];
 
