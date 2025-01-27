@@ -19,6 +19,7 @@ const ReturnsPage = async () => {
     return redirect("/");
   }
 
+  // Fetch returns with related product information
   const returns = await db.return.findMany({
     where: {
       product: {
@@ -26,13 +27,14 @@ const ReturnsPage = async () => {
       },
     },
     include: {
-      product: true,
+      product: true, // Include product details
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
+  // Fetch products for the Add Return dialog
   const products = await db.product.findMany({
     where: {
       userId,
@@ -43,6 +45,16 @@ const ReturnsPage = async () => {
     },
   });
 
+  // Flatten returns data
+  const flattenedReturns = returns.map((returnItem) => ({
+    id: returnItem.id,
+    productName: returnItem.product?.name || "Unknown", // Flattened product name
+    quantity: returnItem.quantity,
+    reason: returnItem.reason,
+    status: returnItem.status,
+    createdAt: returnItem.createdAt,
+  }));
+
   return (
     <div>
       <div className="flex items-center justify-between flex-wrap gap-4 mb-12 md:gap-0">
@@ -50,7 +62,8 @@ const ReturnsPage = async () => {
         <AddReturnDialog products={products} />
       </div>
 
-      <DataTable columns={columns} data={returns} />
+      {/* Pass flattened data to the table */}
+      <DataTable columns={columns} data={flattenedReturns} />
     </div>
   );
 };

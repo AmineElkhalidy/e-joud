@@ -22,8 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
-import { PlusCircle } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,11 +55,14 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="pb-4">
+        {/* Use `product.name` as the column key for filtering */}
         <Input
           placeholder="Filter return..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("productName")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("productName")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
