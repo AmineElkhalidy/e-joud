@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
@@ -21,11 +28,16 @@ interface ProfilesListProps {
 }
 
 const ProfilesList = ({ users }: ProfilesListProps) => {
-  const [filter, setFilter] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
 
-  const filteredUsers = users.filter((user) =>
-    user.fullName.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const matchesName = user.fullName
+      .toLowerCase()
+      .includes(nameFilter.toLowerCase());
+    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    return matchesName && matchesRole;
+  });
 
   const handleRemove = async (id: string) => {
     try {
@@ -39,14 +51,29 @@ const ProfilesList = ({ users }: ProfilesListProps) => {
 
   return (
     <div>
-      {/* Filter Input */}
-      <div className="pb-4">
+      {/* Filter Inputs */}
+      <div className="flex items-center gap-4 pb-4">
+        {/* Filter by Full Name */}
         <Input
           placeholder="Filter by Full Name..."
-          value={filter}
-          onChange={(event) => setFilter(event.target.value)}
+          value={nameFilter}
+          onChange={(event) => setNameFilter(event.target.value)}
           className="max-w-sm"
         />
+        {/* Filter by Role */}
+        <Select
+          onValueChange={(value) => setRoleFilter(value === "ALL" ? "" : value)}
+          value={roleFilter || "ALL"}
+        >
+          <SelectTrigger className="max-w-sm">
+            <SelectValue placeholder="Filter by Role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Roles</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
+            <SelectItem value="USER">User</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-md border">
