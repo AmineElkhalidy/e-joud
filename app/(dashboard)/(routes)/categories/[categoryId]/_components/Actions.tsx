@@ -32,7 +32,10 @@ const CategoryActions = ({ categoryId }: Props) => {
 
   return (
     <div className="flex items-center gap-x-2">
-      <ConfirmModal onConfirm={onDelete}>
+      <ConfirmModal
+        onConfirm={onDelete}
+        description="Products belongs to this category, are you sure you want to delete it?"
+      >
         <Button size="sm" disabled={isLoading}>
           <TrashIcon className="w-4 h-4" />
         </Button>

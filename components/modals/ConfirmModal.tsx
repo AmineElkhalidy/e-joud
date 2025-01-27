@@ -16,17 +16,21 @@ import {
 interface Props {
   children: React.ReactNode;
   onConfirm: () => void;
+  title?: string;
+  description?: string;
 }
 
-const ConfirmModal = ({ children, onConfirm }: Props) => {
+const ConfirmModal = ({ children, onConfirm, title, description }: Props) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>
+            {title ? title : "Are you absolutely sure?"}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone.
+            {description ? description : "This action cannot be undone."}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
