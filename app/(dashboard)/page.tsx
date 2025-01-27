@@ -9,64 +9,89 @@ export const metadata: Metadata = {
   description: "Manage products and clients efficiently.",
 };
 
-const Dashboard = async () => {
+const Dashboard = async ({
+  searchParams,
+}: {
+  searchParams: { startDate?: string; endDate?: string };
+}) => {
   const { userId } = await auth();
 
   if (!userId) redirect("/sign-in");
 
+  // Parse the query parameters
+  const startDate = searchParams.startDate
+    ? new Date(searchParams.startDate)
+    : undefined;
+  const endDate = searchParams.endDate
+    ? new Date(searchParams.endDate)
+    : undefined;
+
+  // Common date filter
+  const dateFilter =
+    startDate && endDate ? { createdAt: { gte: startDate, lte: endDate } } : {};
+
   // Fetch the data for analytics
   const totalRevenue = await db.purchase.aggregate({
-    where: { userId },
+    where: { userId, ...dateFilter },
     _sum: { totalPrice: true },
   });
 
   const totalOrders = await db.purchase.count({
-    where: { userId },
+    where: { userId, ...dateFilter },
   });
 
-  const topSellingProducts = await db.purchasedItem.groupBy({
-    by: ["productId"],
-    _sum: { quantity: true },
-    orderBy: { _sum: { quantity: "desc" } },
-    take: 5,
-  });
+  const topSellingProducts = await db.purchasedItem
+    .groupBy({
+      by: ["productId"],
+      _sum: { quantity: true },
+      where: { ...dateFilter },
+      orderBy: { _sum: { quantity: "desc" } },
+      take: 5,
+    })
+    .catch(() => []);
 
   const products = await db.product.findMany({
     where: { userId },
     select: { id: true, name: true },
   });
 
-  const categoryDistribution = await db.product.groupBy({
-    by: ["categoryId"], // Include `categoryId` here
-    _count: { categoryId: true }, // Count how many products belong to each category
-    orderBy: { _count: { categoryId: "desc" } }, // Order by the count
-  });
+  const categoryDistribution = await db.product
+    .groupBy({
+      by: ["categoryId"],
+      _count: { categoryId: true },
+      where: { ...dateFilter },
+      orderBy: { _count: { categoryId: "desc" } },
+    })
+    .catch(() => []);
 
   const categories = await db.category.findMany({
     where: { userId },
     select: { id: true, name: true },
   });
 
+  // Resolve data safely
   const resolvedTopProducts = topSellingProducts.map((item) => ({
     name:
       products.find((product) => product.id === item.productId)?.name ||
       "Unknown",
-    sales: item._sum.quantity,
+    sales: item._sum.quantity || 0,
   }));
 
   const resolvedCategoryDistribution = categoryDistribution.map((item) => ({
     name:
       categories.find((category) => category.id === item.categoryId)?.name ||
       "Uncategorized",
-    value: item._count.categoryId,
+    value: item._count.categoryId || 0,
   }));
 
   return (
     <Dash
       totalRevenue={totalRevenue._sum.totalPrice || 0}
-      totalOrders={totalOrders}
-      topProducts={resolvedTopProducts}
-      categoryDistribution={resolvedCategoryDistribution}
+      totalOrders={totalOrders || 0}
+      topProducts={resolvedTopProducts.length ? resolvedTopProducts : []}
+      categoryDistribution={
+        resolvedCategoryDistribution.length ? resolvedCategoryDistribution : []
+      }
     />
   );
 };

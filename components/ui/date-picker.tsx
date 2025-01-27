@@ -48,7 +48,7 @@ export const DatePickerWithPresets = ({
         <div className="rounded-md border">
           <Calendar
             mode="single"
-            selected={selectedDate}
+            selected={selectedDate!}
             onSelect={handleDateSelect}
             className="p-2"
           />
