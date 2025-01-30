@@ -34,7 +34,8 @@ const CategoryActions = ({ categoryId }: Props) => {
     <div className="flex items-center gap-x-2">
       <ConfirmModal
         onConfirm={onDelete}
-        description="Products belongs to this category, are you sure you want to delete it?"
+        title="Delete Category?"
+        description="Are you sure you want to delete? This action cannot be undone."
       >
         <Button size="sm" disabled={isLoading}>
           <TrashIcon className="w-4 h-4" />
