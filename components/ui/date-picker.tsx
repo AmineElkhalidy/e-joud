@@ -45,12 +45,12 @@ export const DatePickerWithPresets = ({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-auto p-2">
         {/* Calendar */}
-        <div className="rounded-md border">
+        <div className="rounded-md border ">
           <Calendar
             mode="single"
             selected={selectedDate!}
             onSelect={handleDateSelect}
-            className="p-2"
+            className="p-2 "
           />
         </div>
       </PopoverContent>

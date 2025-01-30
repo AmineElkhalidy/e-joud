@@ -16,7 +16,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { DatePickerWithPresets } from "@/components/ui/date-picker";
 
-import { Filter } from "lucide-react";
+import {
+  ChevronsDown,
+  ChevronsUp,
+  ChevronUp,
+  CircleDollarSign,
+  Filter,
+  ShoppingBag,
+} from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -60,14 +67,14 @@ const Dash = ({
     const params = new URLSearchParams();
     if (startDate) params.set("startDate", startDate.toISOString());
     if (endDate) params.set("endDate", endDate.toISOString());
-    router.push(`/?${params.toString()}`, { shallow: true });
+    router.push(`/?${params.toString()}`);
   };
 
   // Clear date filters
   const clearFilters = () => {
     setStartDate(null);
     setEndDate(null);
-    router.push("/", { shallow: true });
+    router.push("/");
   };
 
   // Check if there's relevant data
@@ -141,7 +148,9 @@ const Dash = ({
           </CardHeader>
           <CardContent>
             <p className="text-xl font-bold">{hasData ? totalOrders : 0}</p>
-            <p className="text-sm text-muted-foreground">Number of Orders</p>
+            <p className="text-sm text-muted-foreground flex items-center gap-x-1 text-[#f59e0b] ">
+              <ShoppingBag className="w-4 h-4" /> Number of Orders
+            </p>
           </CardContent>
         </Card>
 
@@ -154,7 +163,9 @@ const Dash = ({
             <p className="text-xl font-bold">
               {hasData ? formatPrice(totalRevenue) : "0.00"}
             </p>
-            <p className="text-sm text-green-600">Total Revenue</p>
+            <p className="text-sm text-green-600 flex items-center gap-x-1">
+              <ChevronsUp className="w-4 h-4" /> Total Revenue
+            </p>
           </CardContent>
         </Card>
 
@@ -167,7 +178,9 @@ const Dash = ({
             <p className="text-xl font-bold">
               {hasData ? formatPrice(totalSpent) : "0.00"}
             </p>
-            <p className="text-sm text-red-600">Total Spent</p>
+            <p className="text-sm text-red-600 flex items-center gap-x-1">
+              <ChevronsDown className="w-4 h-4" /> Total Spent
+            </p>
           </CardContent>
         </Card>
 
@@ -180,7 +193,9 @@ const Dash = ({
             <p className="text-xl font-bold">
               {hasData ? formatPrice(totalProfit) : "0.00"}
             </p>
-            <p className="text-sm text-muted-foreground">Net Profit</p>
+            <p className="text-sm text-sky-600 flex items-center gap-x-1">
+              <CircleDollarSign className="w-4 h-4" /> Net Profit
+            </p>
           </CardContent>
         </Card>
       </div>
